@@ -17,7 +17,7 @@ export default function SurfboardGrid({ boards }: SurfboardGridProps) {
 
       {/* Load More Button */}
       <div className="text-center mt-12">
-        <button className="bg-white border border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors font-medium shadow-sm">
+        <button className="bg-white border border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors font-medium shadow-sm cursor-pointer">
           Load More Boards
         </button>
       </div>

@@ -22,6 +22,9 @@ export default function NearMeSection({
   const [error, setError] = useState<string>('');
   const [hasRequested, setHasRequested] = useState(false);
 
+  const selectClassName =
+    "appearance-none bg-white px-3 py-2 pr-7 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 hover:border-gray-400 transition-colors cursor-pointer bg-[url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27none%27 viewBox=%270 0 20 20%27%3e%3cpath stroke=%27%236b7280%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%271.5%27 d=%27m6 8 4 4 4-4%27/%3e%3c/svg%3e')] bg-[position:right_0.5rem_center] bg-[size:1.2em_1.2em] bg-no-repeat";
+
   const requestLocation = () => {
     if (!navigator.geolocation) {
       setError('Geolocation is not supported by this browser.');
@@ -116,7 +119,7 @@ export default function NearMeSection({
           </p>
           <button
             onClick={requestLocation}
-            className="bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+            className="bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
           >
             📍 Find Boards Near Me
           </button>
@@ -163,7 +166,7 @@ export default function NearMeSection({
           <p className="text-red-600 mb-4">{error}</p>
           <button
             onClick={requestLocation}
-            className="bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+            className="bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
           >
             Try Again
           </button>
@@ -191,7 +194,7 @@ export default function NearMeSection({
             id="radius"
             value={radius}
             onChange={e => setRadius(Number(e.target.value))}
-            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+            className={selectClassName}
           >
             <option value={25}>25 miles</option>
             <option value={50}>50 miles</option>
@@ -242,7 +245,7 @@ export default function NearMeSection({
 
       {nearbyBoards.length > 6 && (
         <div className="text-center mt-6">
-          <button className="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors font-medium text-sm">
+          <button className="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors font-medium text-sm cursor-pointer">
             View All {nearbyBoards.length} Nearby Boards
           </button>
         </div>
