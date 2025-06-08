@@ -9,26 +9,26 @@ export default function Header() {
               Surfboard Marketplace
             </span>
           </div>
-          <nav className="hidden md:flex space-x-8">
+          <nav className="hidden md:flex items-center space-x-6">
             <a
               href="#"
-              className="text-gray-700 hover:text-gray-900 transition-colors"
+              className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-2"
             >
               Browse
             </a>
             <a
               href="#"
-              className="text-gray-700 hover:text-gray-900 transition-colors"
+              className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-2"
             >
               Sell
             </a>
             <a
               href="#"
-              className="text-gray-700 hover:text-gray-900 transition-colors"
+              className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-2"
             >
               About
             </a>
-            <button className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">
+            <button className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors font-medium ml-2">
               Sign In
             </button>
           </nav>
