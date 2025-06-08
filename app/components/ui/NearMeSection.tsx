@@ -229,9 +229,9 @@ export default function NearMeSection({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
           {nearbyBoards.slice(0, 6).map(board => (
-            <div key={board.id} className="relative">
+            <div key={board.id} className="relative h-full">
               <SurfboardCard board={board} />
               {board.distance && (
                 <div className="absolute top-2 right-2 bg-gray-900 text-white text-xs px-2 py-1 rounded-full">
