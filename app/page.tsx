@@ -7,7 +7,7 @@ import { surfboards } from './data/surfboards';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       <Header />
       <HeroSection />
 
