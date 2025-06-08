@@ -19,6 +19,33 @@ export default function About() {
           </p>
         </div>
 
+        {/* Story Section */}
+        <section className="mb-16">
+          <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-lg text-white p-8">
+            <h2 className="text-2xl font-bold mb-6">Our Story</h2>
+            <div className="space-y-4 text-gray-100">
+              <p>
+                BoardSource was born out of a simple frustration: finding
+                quality used surfboards was harder than it should be. Scattered
+                across various platforms, buried in generic classifieds, or
+                hidden in local surf shops, great boards were going unnoticed.
+              </p>
+              <p>
+                As lifelong surfers, we knew there had to be a better way. We
+                envisioned a dedicated platform where surfers could easily
+                discover, evaluate, and purchase boards from fellow enthusiasts.
+                A place where the rich history and craftsmanship of each board
+                could be properly showcased.
+              </p>
+              <p>
+                Today, BoardSource connects thousands of surfers across the
+                country, from weekend warriors to professional athletes, all
+                united by their love for the ocean and the perfect wave.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* Mission Section */}
         <section className="mb-16">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
@@ -66,78 +93,6 @@ export default function About() {
                   community.
                 </p>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Story Section */}
-        <section className="mb-16">
-          <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-lg text-white p-8">
-            <h2 className="text-2xl font-bold mb-6">Our Story</h2>
-            <div className="space-y-4 text-gray-100">
-              <p>
-                BoardSource was born out of a simple frustration: finding
-                quality used surfboards was harder than it should be. Scattered
-                across various platforms, buried in generic classifieds, or
-                hidden in local surf shops, great boards were going unnoticed.
-              </p>
-              <p>
-                As lifelong surfers, we knew there had to be a better way. We
-                envisioned a dedicated platform where surfers could easily
-                discover, evaluate, and purchase boards from fellow enthusiasts.
-                A place where the rich history and craftsmanship of each board
-                could be properly showcased.
-              </p>
-              <p>
-                Today, BoardSource connects thousands of surfers across the
-                country, from weekend warriors to professional athletes, all
-                united by their love for the ocean and the perfect wave.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Values Section */}
-        <section className="mb-16">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
-            What We Stand For
-          </h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="text-center p-6 bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🌊</span>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Ocean Respect
-              </h3>
-              <p className="text-gray-600 text-sm">
-                We&apos;re committed to protecting the oceans that give us so
-                much joy through sustainable practices and community education.
-              </p>
-            </div>
-            <div className="text-center p-6 bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🤝</span>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Trust & Safety
-              </h3>
-              <p className="text-gray-600 text-sm">
-                Every transaction should feel secure. We provide tools and
-                guidance to ensure safe, successful exchanges.
-              </p>
-            </div>
-            <div className="text-center p-6 bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">⚡</span>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Stoke & Passion
-              </h3>
-              <p className="text-gray-600 text-sm">
-                Surfing is about pure stoke. We aim to amplify that feeling
-                through every interaction on our platform.
-              </p>
             </div>
           </div>
         </section>
