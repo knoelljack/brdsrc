@@ -2,9 +2,7 @@ export default function HeroSection() {
   return (
     <section className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-5xl font-bold mb-4">
-          Find Your Perfect Board
-        </h2>
+        <h2 className="text-5xl font-bold mb-4">Find Your Perfect Board</h2>
         <p className="text-xl mb-8 text-gray-300">
           Discover quality surfboards from surfers worldwide
         </p>
