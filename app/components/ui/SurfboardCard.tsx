@@ -6,9 +6,9 @@ interface SurfboardCardProps {
 
 export default function SurfboardCard({ board }: SurfboardCardProps) {
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100 h-full flex flex-col">
       {/* Placeholder Image */}
-      <div className="h-48 bg-gray-100 flex items-center justify-center">
+      <div className="h-48 bg-gray-100 flex items-center justify-center flex-shrink-0">
         <div className="text-center text-gray-400">
           <svg
             className="mx-auto h-12 w-12 mb-2"
@@ -28,7 +28,7 @@ export default function SurfboardCard({ board }: SurfboardCardProps) {
       </div>
 
       {/* Card Content */}
-      <div className="p-6">
+      <div className="p-6 flex flex-col flex-grow">
         <div className="flex justify-between items-start mb-2">
           <h4 className="text-lg font-semibold text-gray-900">{board.title}</h4>
           <span className="text-lg font-bold text-gray-900">
@@ -55,11 +55,11 @@ export default function SurfboardCard({ board }: SurfboardCardProps) {
           <span className="text-xs text-gray-500">📍 {board.location}</span>
         </div>
 
-        <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+        <p className="text-sm text-gray-600 mb-4 flex-grow">
           {board.description}
         </p>
 
-        <button className="w-full bg-gray-900 text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer">
+        <button className="w-full bg-gray-900 text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer mt-auto">
           View Details
         </button>
       </div>
