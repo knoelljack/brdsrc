@@ -22,6 +22,9 @@ export default function NearMeSection({
   const [error, setError] = useState<string>('');
   const [hasRequested, setHasRequested] = useState(false);
 
+  const selectClassName =
+    "appearance-none bg-white px-3 py-2 pr-7 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 hover:border-gray-400 transition-colors cursor-pointer bg-[url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27none%27 viewBox=%270 0 20 20%27%3e%3cpath stroke=%27%236b7280%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%271.5%27 d=%27m6 8 4 4 4-4%27/%3e%3c/svg%3e')] bg-[position:right_0.5rem_center] bg-[size:1.2em_1.2em] bg-no-repeat";
+
   const requestLocation = () => {
     if (!navigator.geolocation) {
       setError('Geolocation is not supported by this browser.');
@@ -191,7 +194,7 @@ export default function NearMeSection({
             id="radius"
             value={radius}
             onChange={e => setRadius(Number(e.target.value))}
-            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
+            className={selectClassName}
           >
             <option value={25}>25 miles</option>
             <option value={50}>50 miles</option>
