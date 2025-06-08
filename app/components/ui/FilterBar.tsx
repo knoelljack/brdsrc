@@ -1,6 +1,28 @@
 import { getUniqueStates, getLocationsByState } from '@/app/data/surfboards';
 
-export default function FilterBar() {
+interface FilterBarProps {
+  locationFilter: string;
+  lengthFilter: string;
+  priceFilter: string;
+  sortBy: string;
+  onLocationChange: (value: string) => void;
+  onLengthChange: (value: string) => void;
+  onPriceChange: (value: string) => void;
+  onSortChange: (value: string) => void;
+  totalCount?: number;
+}
+
+export default function FilterBar({
+  locationFilter,
+  lengthFilter,
+  priceFilter,
+  sortBy,
+  onLocationChange,
+  onLengthChange,
+  onPriceChange,
+  onSortChange,
+  totalCount,
+}: FilterBarProps) {
   const states = getUniqueStates();
   const locationsByState = getLocationsByState();
 
@@ -40,9 +62,18 @@ export default function FilterBar() {
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <h3 className="text-2xl font-bold text-gray-900">
           Available Surfboards
+          {totalCount !== undefined && (
+            <span className="text-lg font-normal text-gray-600 ml-2">
+              ({totalCount})
+            </span>
+          )}
         </h3>
         <div className="grid grid-cols-2 lg:flex gap-3">
-          <SelectWithIcon className={selectClassName}>
+          <SelectWithIcon
+            className={selectClassName}
+            value={locationFilter}
+            onChange={e => onLocationChange(e.target.value)}
+          >
             <option value="">All Locations</option>
             <option value="near-me" className="font-semibold">
               📍 Near Me
@@ -58,25 +89,37 @@ export default function FilterBar() {
               </optgroup>
             ))}
           </SelectWithIcon>
-          <SelectWithIcon className={selectClassName}>
-            <option>All Lengths</option>
-            <option>Under 6&apos;</option>
-            <option>6&apos; - 7&apos;</option>
-            <option>7&apos; - 9&apos;</option>
-            <option>Over 9&apos;</option>
+          <SelectWithIcon
+            className={selectClassName}
+            value={lengthFilter}
+            onChange={e => onLengthChange(e.target.value)}
+          >
+            <option value="">All Lengths</option>
+            <option value="Under 6'">Under 6&apos;</option>
+            <option value="6' - 7'">6&apos; - 7&apos;</option>
+            <option value="7' - 9'">7&apos; - 9&apos;</option>
+            <option value="Over 9'">Over 9&apos;</option>
           </SelectWithIcon>
-          <SelectWithIcon className={selectClassName}>
-            <option>All Prices</option>
-            <option>Under $400</option>
-            <option>$400 - $600</option>
-            <option>Over $600</option>
+          <SelectWithIcon
+            className={selectClassName}
+            value={priceFilter}
+            onChange={e => onPriceChange(e.target.value)}
+          >
+            <option value="">All Prices</option>
+            <option value="Under $400">Under $400</option>
+            <option value="$400 - $600">$400 - $600</option>
+            <option value="Over $600">Over $600</option>
           </SelectWithIcon>
-          <SelectWithIcon className={selectClassName}>
-            <option>Sort by: Newest</option>
-            <option>Price: Low to High</option>
-            <option>Price: High to Low</option>
-            <option>Length: Short to Long</option>
-            <option>Distance: Closest First</option>
+          <SelectWithIcon
+            className={selectClassName}
+            value={sortBy}
+            onChange={e => onSortChange(e.target.value)}
+          >
+            <option value="newest">Sort by: Newest</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="length-short">Length: Short to Long</option>
+            <option value="distance">Distance: Closest First</option>
           </SelectWithIcon>
         </div>
       </div>
