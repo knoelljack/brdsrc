@@ -12,7 +12,7 @@ export default function HeroSection() {
             placeholder="Search boards..."
             className="flex-1 px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 border border-gray-300"
           />
-          <button className="bg-white text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors shadow-md">
+          <button className="bg-white text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors shadow-md cursor-pointer">
             Search
           </button>
         </div>

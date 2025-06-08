@@ -11,7 +11,7 @@ export default function FilterBar() {
           Available Surfboards
         </h3>
         <div className="grid grid-cols-2 lg:flex gap-2">
-          <select className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500">
+          <select className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer">
             <option value="">All Locations</option>
             <option value="near-me" className="font-semibold">
               📍 Near Me
@@ -27,20 +27,20 @@ export default function FilterBar() {
               </optgroup>
             ))}
           </select>
-          <select className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500">
+          <select className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer">
             <option>All Lengths</option>
             <option>Under 6&apos;</option>
             <option>6&apos; - 7&apos;</option>
             <option>7&apos; - 9&apos;</option>
             <option>Over 9&apos;</option>
           </select>
-          <select className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500">
+          <select className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer">
             <option>All Prices</option>
             <option>Under $400</option>
             <option>$400 - $600</option>
             <option>Over $600</option>
           </select>
-          <select className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500">
+          <select className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer">
             <option>Sort by: Newest</option>
             <option>Price: Low to High</option>
             <option>Price: High to Low</option>

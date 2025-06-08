@@ -116,7 +116,7 @@ export default function NearMeSection({
           </p>
           <button
             onClick={requestLocation}
-            className="bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+            className="bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
           >
             📍 Find Boards Near Me
           </button>
@@ -163,7 +163,7 @@ export default function NearMeSection({
           <p className="text-red-600 mb-4">{error}</p>
           <button
             onClick={requestLocation}
-            className="bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+            className="bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
           >
             Try Again
           </button>
@@ -191,7 +191,7 @@ export default function NearMeSection({
             id="radius"
             value={radius}
             onChange={e => setRadius(Number(e.target.value))}
-            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
           >
             <option value={25}>25 miles</option>
             <option value={50}>50 miles</option>
@@ -242,7 +242,7 @@ export default function NearMeSection({
 
       {nearbyBoards.length > 6 && (
         <div className="text-center mt-6">
-          <button className="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors font-medium text-sm">
+          <button className="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors font-medium text-sm cursor-pointer">
             View All {nearbyBoards.length} Nearby Boards
           </button>
         </div>

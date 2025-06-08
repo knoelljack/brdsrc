@@ -59,7 +59,7 @@ export default function SurfboardCard({ board }: SurfboardCardProps) {
           {board.description}
         </p>
 
-        <button className="w-full bg-gray-900 text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors font-medium">
+        <button className="w-full bg-gray-900 text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer">
           View Details
         </button>
       </div>
