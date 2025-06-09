@@ -27,24 +27,24 @@ export default function Header() {
             </div>
           </Link>
           <nav className="hidden md:flex items-center space-x-6">
-            <a
+            <Link
               href="/browse"
               className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-2 cursor-pointer"
             >
               Browse
-            </a>
-            <a
-              href="#"
+            </Link>
+            <Link
+              href="/sell"
               className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-2 cursor-pointer"
             >
               Sell
-            </a>
-            <a
+            </Link>
+            <Link
               href="/about"
               className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-2 cursor-pointer"
             >
               About
-            </a>
+            </Link>
             <button className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors font-medium ml-2 cursor-pointer">
               Sign In
             </button>
