@@ -10,6 +10,7 @@ interface FilterBarProps {
   onPriceChange: (value: string) => void;
   onSortChange: (value: string) => void;
   totalCount?: number;
+  searchTerm?: string;
 }
 
 export default function FilterBar({
@@ -22,6 +23,7 @@ export default function FilterBar({
   onPriceChange,
   onSortChange,
   totalCount,
+  searchTerm,
 }: FilterBarProps) {
   const states = getUniqueStates();
   const locationsByState = getLocationsByState();
@@ -60,14 +62,22 @@ export default function FilterBar({
   return (
     <div className="mb-8">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <h3 className="text-2xl font-bold text-gray-900">
-          Available Surfboards
-          {totalCount !== undefined && (
-            <span className="text-lg font-normal text-gray-600 ml-2">
-              ({totalCount})
-            </span>
+        <div className="flex flex-col gap-2">
+          <h3 className="text-2xl font-bold text-gray-900">
+            Available Surfboards
+            {totalCount !== undefined && (
+              <span className="text-lg font-normal text-gray-600 ml-2">
+                ({totalCount})
+              </span>
+            )}
+          </h3>
+          {searchTerm && (
+            <p className="text-sm text-gray-600">
+              Search results for:{' '}
+              <span className="font-medium">&quot;{searchTerm}&quot;</span>
+            </p>
           )}
-        </h3>
+        </div>
         <div className="grid grid-cols-2 lg:flex gap-3">
           <SelectWithIcon
             className={selectClassName}
