@@ -1,0 +1,185 @@
+'use client';
+
+import { use } from 'react';
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { surfboards } from '@/app/data/surfboards';
+import Header from '@/app/components/layout/Header';
+import Footer from '@/app/components/layout/Footer';
+
+interface BoardDetailPageProps {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
+export default function BoardDetailPage({ params }: BoardDetailPageProps) {
+  const { id } = use(params);
+  const board = surfboards.find(b => b.id === parseInt(id));
+
+  if (!board) {
+    notFound();
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+      <Header />
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Breadcrumb */}
+        <nav className="mb-8">
+          <ol className="flex items-center space-x-2 text-sm text-gray-500">
+            <li>
+              <Link href="/" className="hover:text-gray-700">
+                Home
+              </Link>
+            </li>
+            <li>
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 111.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </li>
+            <li>
+              <Link href="/browse" className="hover:text-gray-700">
+                Browse
+              </Link>
+            </li>
+            <li>
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 111.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </li>
+            <li className="text-gray-900">{board.title}</li>
+          </ol>
+        </nav>
+
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Image Section */}
+            <div className="p-8">
+              <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+                <div className="text-center text-gray-400">
+                  <svg
+                    className="mx-auto h-24 w-24 mb-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <p className="text-lg">High-resolution images coming soon</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Details Section */}
+            <div className="p-8">
+              <div className="mb-6">
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  {board.title}
+                </h1>
+                <p className="text-2xl font-bold text-gray-900">
+                  ${board.price}
+                </p>
+              </div>
+
+              <div className="space-y-4 mb-8">
+                <div className="flex items-center justify-between py-3 border-b border-gray-200">
+                  <span className="text-gray-600">Brand</span>
+                  <span className="font-medium text-gray-900">
+                    {board.brand}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-3 border-b border-gray-200">
+                  <span className="text-gray-600">Length</span>
+                  <span className="font-medium text-gray-900">
+                    {board.length}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-3 border-b border-gray-200">
+                  <span className="text-gray-600">Condition</span>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      board.condition === 'Excellent'
+                        ? 'bg-green-100 text-green-800'
+                        : board.condition === 'Very Good'
+                          ? 'bg-gray-100 text-gray-800'
+                          : 'bg-yellow-100 text-yellow-800'
+                    }`}
+                  >
+                    {board.condition}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-3 border-b border-gray-200">
+                  <span className="text-gray-600">Location</span>
+                  <span className="font-medium text-gray-900">
+                    📍 {board.city}, {board.state}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                  Description
+                </h3>
+                <p className="text-gray-700 leading-relaxed">
+                  {board.description}
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <button className="w-full bg-gray-900 text-white py-3 px-6 rounded-lg hover:bg-gray-800 transition-colors font-medium">
+                  Contact Seller
+                </button>
+                <button className="w-full bg-white border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                  Save to Favorites
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Back to Browse */}
+        <div className="mt-8 text-center">
+          <Link
+            href="/browse"
+            className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            Back to Browse
+          </Link>
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
+}

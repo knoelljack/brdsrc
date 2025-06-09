@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import Link from 'next/link';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import FilterBar from '../components/ui/FilterBar';
@@ -360,9 +361,12 @@ export default function Browse() {
                               {board.description}
                             </p>
 
-                            <button className="bg-gray-900 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors font-medium">
+                            <Link
+                              href={`/boards/${board.id}`}
+                              className="bg-gray-900 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors font-medium inline-block"
+                            >
                               View Details
-                            </button>
+                            </Link>
                           </div>
                         </div>
                       </div>
