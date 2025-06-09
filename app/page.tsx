@@ -14,6 +14,7 @@ export default function Home() {
   const [locationFilter, setLocationFilter] = useState('');
   const [lengthFilter, setLengthFilter] = useState('');
   const [priceFilter, setPriceFilter] = useState('');
+  const [conditionFilter, setConditionFilter] = useState('');
   const [sortBy, setSortBy] = useState('newest');
 
   // Parse length from string (e.g. "9'6"" -> 9.5)
@@ -61,10 +62,8 @@ export default function Home() {
       filtered = filtered.filter(board => {
         const boardLength = parseLength(board.length);
         switch (lengthFilter) {
-          case "Under 6'":
-            return boardLength < 6;
-          case "6' - 7'":
-            return boardLength >= 6 && boardLength < 7;
+          case "Under 7'":
+            return boardLength < 7;
           case "7' - 9'":
             return boardLength >= 7 && boardLength < 9;
           case "Over 9'":
@@ -91,6 +90,11 @@ export default function Home() {
       });
     }
 
+    // Condition filter
+    if (conditionFilter && conditionFilter !== 'All Conditions') {
+      filtered = filtered.filter(board => board.condition === conditionFilter);
+    }
+
     // Sorting
     switch (sortBy) {
       case 'price-low':
@@ -111,7 +115,14 @@ export default function Home() {
     }
 
     return filtered;
-  }, [searchTerm, locationFilter, lengthFilter, priceFilter, sortBy]);
+  }, [
+    searchTerm,
+    locationFilter,
+    lengthFilter,
+    priceFilter,
+    conditionFilter,
+    sortBy,
+  ]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
@@ -125,10 +136,12 @@ export default function Home() {
             locationFilter={locationFilter}
             lengthFilter={lengthFilter}
             priceFilter={priceFilter}
+            conditionFilter={conditionFilter}
             sortBy={sortBy}
             onLocationChange={setLocationFilter}
             onLengthChange={setLengthFilter}
             onPriceChange={setPriceFilter}
+            onConditionChange={setConditionFilter}
             onSortChange={setSortBy}
             totalCount={filteredBoards.length}
             searchTerm={searchTerm}

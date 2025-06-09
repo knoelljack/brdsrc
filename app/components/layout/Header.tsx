@@ -28,7 +28,7 @@ export default function Header() {
           </Link>
           <nav className="hidden md:flex items-center space-x-6">
             <a
-              href="#"
+              href="/browse"
               className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-2 cursor-pointer"
             >
               Browse
