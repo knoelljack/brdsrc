@@ -175,6 +175,8 @@ export default function SellPage() {
                     <option value="Excellent">Excellent</option>
                     <option value="Very Good">Very Good</option>
                     <option value="Good">Good</option>
+                    <option value="Fair">Fair</option>
+                    <option value="Poor">Poor</option>
                   </select>
                 </div>
 
