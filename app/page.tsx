@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import HeroSection from './components/ui/HeroSection';
@@ -16,6 +16,23 @@ export default function Home() {
   const [priceFilter, setPriceFilter] = useState('');
   const [conditionFilter, setConditionFilter] = useState('');
   const [sortBy, setSortBy] = useState('newest');
+
+  const availableBoardsRef = useRef<HTMLDivElement>(null);
+
+  // Handle text input change (no scroll)
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+  };
+
+  // Handle search action with scroll (Enter or Search button)
+  const handleSearch = () => {
+    if (searchTerm.trim() && availableBoardsRef.current) {
+      availableBoardsRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  };
 
   // Parse length from string (e.g. "9'6"" -> 9.5)
   const parseLength = (lengthStr: string): number => {
@@ -127,11 +144,15 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       <Header />
-      <HeroSection searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+      <HeroSection
+        searchTerm={searchTerm}
+        onSearchChange={handleSearchChange}
+        onSearch={handleSearch}
+      />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
         <NearMeSection />
-        <div>
+        <div ref={availableBoardsRef}>
           <FilterBar
             locationFilter={locationFilter}
             lengthFilter={lengthFilter}
