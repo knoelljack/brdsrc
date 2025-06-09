@@ -65,12 +65,12 @@ export default function About() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                  🤝 Building Community
+                  🎯 Quality First
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  More than just a marketplace, we&apos;re fostering a community
-                  where surfers can connect, share experiences, and help each
-                  other find their perfect board.
+                  We&apos;re committed to ensuring every transaction is safe,
+                  transparent, and satisfying for both buyers and sellers in our
+                  community.
                 </p>
               </div>
               <div>
@@ -85,12 +85,12 @@ export default function About() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                  🎯 Quality First
+                  🤝 Building Community
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  We&apos;re committed to ensuring every transaction is safe,
-                  transparent, and satisfying for both buyers and sellers in our
-                  community.
+                  More than just a marketplace, we&apos;re fostering a community
+                  where surfers can connect, share experiences, and help each
+                  other find their perfect board.
                 </p>
               </div>
             </div>
@@ -107,18 +107,12 @@ export default function About() {
               Have questions, feedback, or want to partner with us? We&apos;d
               love to hear from fellow surfers and ocean enthusiasts.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex justify-center">
               <a
                 href="mailto:hello@boardsource.com"
                 className="bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
               >
                 📧 hello@boardsource.com
-              </a>
-              <a
-                href="#"
-                className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors font-medium cursor-pointer"
-              >
-                💬 Join Our Community
               </a>
             </div>
           </div>
