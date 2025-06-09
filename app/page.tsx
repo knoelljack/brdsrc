@@ -10,6 +10,7 @@ import NearMeSection from './components/ui/NearMeSection';
 import { surfboards } from './data/surfboards';
 
 export default function Home() {
+  const [searchTerm, setSearchTerm] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
   const [lengthFilter, setLengthFilter] = useState('');
   const [priceFilter, setPriceFilter] = useState('');
@@ -29,6 +30,23 @@ export default function Home() {
   // Filter and sort surfboards
   const filteredBoards = useMemo(() => {
     let filtered = [...surfboards];
+
+    // Search filter
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(board => {
+        return (
+          board.title.toLowerCase().includes(searchLower) ||
+          board.brand.toLowerCase().includes(searchLower) ||
+          board.location.toLowerCase().includes(searchLower) ||
+          board.city.toLowerCase().includes(searchLower) ||
+          board.state.toLowerCase().includes(searchLower) ||
+          board.description.toLowerCase().includes(searchLower) ||
+          board.condition.toLowerCase().includes(searchLower) ||
+          board.length.toLowerCase().includes(searchLower)
+        );
+      });
+    }
 
     // Location filter
     if (locationFilter && locationFilter !== 'near-me') {
@@ -93,12 +111,12 @@ export default function Home() {
     }
 
     return filtered;
-  }, [locationFilter, lengthFilter, priceFilter, sortBy]);
+  }, [searchTerm, locationFilter, lengthFilter, priceFilter, sortBy]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       <Header />
-      <HeroSection />
+      <HeroSection searchTerm={searchTerm} onSearchChange={setSearchTerm} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
         <NearMeSection />
@@ -113,6 +131,7 @@ export default function Home() {
             onPriceChange={setPriceFilter}
             onSortChange={setSortBy}
             totalCount={filteredBoards.length}
+            searchTerm={searchTerm}
           />
           <SurfboardGrid boards={filteredBoards} />
         </div>

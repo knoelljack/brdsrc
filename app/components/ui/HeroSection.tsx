@@ -1,4 +1,12 @@
-export default function HeroSection() {
+interface HeroSectionProps {
+  searchTerm: string;
+  onSearchChange: (value: string) => void;
+}
+
+export default function HeroSection({
+  searchTerm,
+  onSearchChange,
+}: HeroSectionProps) {
   return (
     <section className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -10,10 +18,15 @@ export default function HeroSection() {
           <input
             type="text"
             placeholder="Search boards..."
+            value={searchTerm}
+            onChange={e => onSearchChange(e.target.value)}
             className="flex-1 px-4 py-3 rounded-lg text-white text-lg placeholder-gray-300 bg-gray-800/50 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-white focus:border-white backdrop-blur-sm"
           />
-          <button className="bg-white text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors shadow-md cursor-pointer">
-            Search
+          <button
+            onClick={() => onSearchChange('')}
+            className="bg-white text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors shadow-md cursor-pointer"
+          >
+            {searchTerm ? 'Clear' : 'Search'}
           </button>
         </div>
       </div>
