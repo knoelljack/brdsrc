@@ -1,7 +1,7 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import AppleProvider from 'next-auth/providers/apple';
-import FacebookProvider from 'next-auth/providers/facebook';
+// import AppleProvider from 'next-auth/providers/apple';
+// import FacebookProvider from 'next-auth/providers/facebook';
 
 const handler = NextAuth({
   providers: [
@@ -9,14 +9,15 @@ const handler = NextAuth({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
-    AppleProvider({
-      clientId: process.env.APPLE_ID!,
-      clientSecret: process.env.APPLE_SECRET!,
-    }),
-    FacebookProvider({
-      clientId: process.env.FACEBOOK_CLIENT_ID!,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
-    }),
+    // Temporarily disabled - uncomment when ready
+    // AppleProvider({
+    //   clientId: process.env.APPLE_ID!,
+    //   clientSecret: process.env.APPLE_SECRET!,
+    // }),
+    // FacebookProvider({
+    //   clientId: process.env.FACEBOOK_CLIENT_ID!,
+    //   clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+    // }),
   ],
   pages: {
     signIn: '/auth/signin',
