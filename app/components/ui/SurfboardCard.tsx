@@ -47,8 +47,14 @@ export default function SurfboardCard({ board }: SurfboardCardProps) {
               board.condition === 'Excellent'
                 ? 'bg-green-100 text-green-800'
                 : board.condition === 'Very Good'
-                  ? 'bg-gray-100 text-gray-800'
-                  : 'bg-yellow-100 text-yellow-800'
+                  ? 'bg-blue-100 text-blue-800'
+                  : board.condition === 'Good'
+                    ? 'bg-yellow-100 text-yellow-800'
+                    : board.condition === 'Fair'
+                      ? 'bg-orange-100 text-orange-800'
+                      : board.condition === 'Poor'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-gray-100 text-gray-800'
             }`}
           >
             {board.condition}
