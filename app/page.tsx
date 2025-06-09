@@ -16,12 +16,14 @@ export default function Home() {
   const [priceFilter, setPriceFilter] = useState('');
   const [conditionFilter, setConditionFilter] = useState('');
   const [sortBy, setSortBy] = useState('newest');
+  const [displayCount, setDisplayCount] = useState(9);
 
   const availableBoardsRef = useRef<HTMLDivElement>(null);
 
   // Handle text input change (no scroll)
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
+    resetDisplayCount();
   };
 
   // Handle search action with scroll (Enter or Search button)
@@ -141,6 +143,20 @@ export default function Home() {
     sortBy,
   ]);
 
+  // Get boards to display (limited by displayCount)
+  const displayedBoards = filteredBoards.slice(0, displayCount);
+  const hasMoreBoards = filteredBoards.length > displayCount;
+
+  // Load more boards
+  const loadMoreBoards = () => {
+    setDisplayCount(prev => prev + 9);
+  };
+
+  // Reset display count when filters change
+  const resetDisplayCount = () => {
+    setDisplayCount(9);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       <Header />
@@ -159,15 +175,41 @@ export default function Home() {
             priceFilter={priceFilter}
             conditionFilter={conditionFilter}
             sortBy={sortBy}
-            onLocationChange={setLocationFilter}
-            onLengthChange={setLengthFilter}
-            onPriceChange={setPriceFilter}
-            onConditionChange={setConditionFilter}
-            onSortChange={setSortBy}
+            onLocationChange={value => {
+              setLocationFilter(value);
+              resetDisplayCount();
+            }}
+            onLengthChange={value => {
+              setLengthFilter(value);
+              resetDisplayCount();
+            }}
+            onPriceChange={value => {
+              setPriceFilter(value);
+              resetDisplayCount();
+            }}
+            onConditionChange={value => {
+              setConditionFilter(value);
+              resetDisplayCount();
+            }}
+            onSortChange={value => {
+              setSortBy(value);
+              resetDisplayCount();
+            }}
             totalCount={filteredBoards.length}
             searchTerm={searchTerm}
           />
-          <SurfboardGrid boards={filteredBoards} />
+          <SurfboardGrid boards={displayedBoards} />
+          {hasMoreBoards && (
+            <div className="text-center mt-8">
+              <button
+                onClick={loadMoreBoards}
+                className="bg-gray-900 text-white px-8 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+              >
+                Load More Boards ({filteredBoards.length - displayCount}{' '}
+                remaining)
+              </button>
+            </div>
+          )}
         </div>
       </main>
 
