@@ -197,7 +197,7 @@ export default function Browse() {
             />
             <button
               onClick={() => setSearchTerm('')}
-              className="bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+              className="bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
             >
               {searchTerm ? 'Clear' : 'Search'}
             </button>
@@ -218,7 +218,7 @@ export default function Browse() {
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors ${
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors cursor-pointer ${
                       selectedCategory === category.id
                         ? 'bg-gray-900 text-white'
                         : 'text-gray-700 hover:bg-gray-100'
@@ -239,7 +239,7 @@ export default function Browse() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
                     viewMode === 'grid'
                       ? 'bg-gray-900 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -249,7 +249,7 @@ export default function Browse() {
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
                     viewMode === 'list'
                       ? 'bg-gray-900 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -363,7 +363,7 @@ export default function Browse() {
 
                             <Link
                               href={`/boards/${board.id}`}
-                              className="bg-gray-900 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors font-medium inline-block"
+                              className="bg-gray-900 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors font-medium inline-block cursor-pointer"
                             >
                               View Details
                             </Link>
