@@ -1,5 +1,11 @@
 import { getUniqueStates, getLocationsByState } from '@/app/data/surfboards';
 import SelectWithIcon from './SelectWithIcon';
+import {
+  CONDITION_OPTIONS,
+  LENGTH_OPTIONS,
+  PRICE_OPTIONS,
+  SORT_OPTIONS,
+} from '@/app/types/filters';
 
 interface FilterBarProps {
   locationFilter: string;
@@ -84,10 +90,11 @@ export default function FilterBar({
               value={lengthFilter}
               onChange={e => onLengthChange(e.target.value)}
             >
-              <option value="">All Lengths</option>
-              <option value="Under 7'">Under 7&apos;</option>
-              <option value="7' - 9'">7&apos; - 9&apos;</option>
-              <option value="Over 9'">Over 9&apos;</option>
+              {LENGTH_OPTIONS.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </SelectWithIcon>
           </div>
           <div className="min-w-[110px]">
@@ -96,10 +103,11 @@ export default function FilterBar({
               value={priceFilter}
               onChange={e => onPriceChange(e.target.value)}
             >
-              <option value="">All Prices</option>
-              <option value="Under $400">Under $400</option>
-              <option value="$400 - $600">$400 - $600</option>
-              <option value="Over $600">Over $600</option>
+              {PRICE_OPTIONS.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </SelectWithIcon>
           </div>
           {onConditionChange && (
@@ -110,11 +118,11 @@ export default function FilterBar({
                 onChange={e => onConditionChange(e.target.value)}
               >
                 <option value="">All Conditions</option>
-                <option value="Excellent">Excellent</option>
-                <option value="Very Good">Very Good</option>
-                <option value="Good">Good</option>
-                <option value="Fair">Fair</option>
-                <option value="Poor">Poor</option>
+                {CONDITION_OPTIONS.map(condition => (
+                  <option key={condition} value={condition}>
+                    {condition}
+                  </option>
+                ))}
               </SelectWithIcon>
             </div>
           )}
@@ -124,11 +132,11 @@ export default function FilterBar({
               value={sortBy}
               onChange={e => onSortChange(e.target.value)}
             >
-              <option value="newest">Sort by: Newest</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="length-short">Length: Short to Long</option>
-              <option value="distance">Distance: Closest First</option>
+              {SORT_OPTIONS.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </SelectWithIcon>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { Surfboard } from '@/app/data/surfboards';
 import Link from 'next/link';
+import { getConditionStyles } from '@/app/types/filters';
 
 interface SurfboardCardProps {
   board: Surfboard;
@@ -43,19 +44,7 @@ export default function SurfboardCard({ board }: SurfboardCardProps) {
 
         <div className="flex items-center gap-2 mb-3">
           <span
-            className={`px-2 py-1 rounded-full text-xs font-medium ${
-              board.condition === 'Excellent'
-                ? 'bg-green-100 text-green-800'
-                : board.condition === 'Very Good'
-                  ? 'bg-blue-100 text-blue-800'
-                  : board.condition === 'Good'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : board.condition === 'Fair'
-                      ? 'bg-orange-100 text-orange-800'
-                      : board.condition === 'Poor'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-gray-100 text-gray-800'
-            }`}
+            className={`px-2 py-1 rounded-full text-xs font-medium ${getConditionStyles(board.condition)}`}
           >
             {board.condition}
           </span>

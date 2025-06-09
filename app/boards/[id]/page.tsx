@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { surfboards } from '@/app/data/surfboards';
 import Header from '@/app/components/layout/Header';
 import Footer from '@/app/components/layout/Footer';
+import { getConditionStyles } from '@/app/types/filters';
 
 interface BoardDetailPageProps {
   params: Promise<{
@@ -114,19 +115,7 @@ export default function BoardDetailPage({ params }: BoardDetailPageProps) {
                 <div className="flex items-center justify-between py-3 border-b border-gray-200">
                   <span className="text-gray-600">Condition</span>
                   <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      board.condition === 'Excellent'
-                        ? 'bg-green-100 text-green-800'
-                        : board.condition === 'Very Good'
-                          ? 'bg-blue-100 text-blue-800'
-                          : board.condition === 'Good'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : board.condition === 'Fair'
-                              ? 'bg-orange-100 text-orange-800'
-                              : board.condition === 'Poor'
-                                ? 'bg-red-100 text-red-800'
-                                : 'bg-gray-100 text-gray-800'
-                    }`}
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${getConditionStyles(board.condition)}`}
                   >
                     {board.condition}
                   </span>

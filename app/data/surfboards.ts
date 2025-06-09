@@ -1,10 +1,12 @@
+import { SurfboardCondition } from '../types/filters';
+
 export interface Surfboard {
   id: number;
   title: string;
   brand: string;
   length: string;
   price: number;
-  condition: 'Excellent' | 'Very Good' | 'Good';
+  condition: SurfboardCondition;
   location: string;
   city: string;
   state: string;
@@ -231,6 +233,20 @@ export const surfboards: Surfboard[] = [
     coordinates: { lat: 47.6062, lng: -122.3321 },
     description:
       'Perfect for Pacific Northwest conditions. Thick wetsuit not included.',
+  },
+  {
+    id: 17,
+    title: 'Brand New Performance Longboard',
+    brand: 'Premium Boards',
+    length: '9\'2"',
+    price: 850,
+    condition: 'Brand New',
+    location: 'Newport Beach, CA',
+    city: 'Newport Beach',
+    state: 'CA',
+    coordinates: { lat: 33.6189, lng: -117.9298 },
+    description:
+      'Never been in the water! Fresh from the shaper with custom glass job and premium finish.',
   },
 ];
 
