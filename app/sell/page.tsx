@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import SelectWithIcon from '../components/ui/SelectWithIcon';
+import { CONDITION_OPTIONS } from '../types/filters';
 
 export default function SellPage() {
   const [formData, setFormData] = useState({
@@ -176,11 +177,11 @@ export default function SellPage() {
                     className={selectClassName}
                   >
                     <option value="">Select condition</option>
-                    <option value="Excellent">Excellent</option>
-                    <option value="Very Good">Very Good</option>
-                    <option value="Good">Good</option>
-                    <option value="Fair">Fair</option>
-                    <option value="Poor">Poor</option>
+                    {CONDITION_OPTIONS.map(condition => (
+                      <option key={condition} value={condition}>
+                        {condition}
+                      </option>
+                    ))}
                   </SelectWithIcon>
                 </div>
 
