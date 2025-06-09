@@ -1,5 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import AuthButton from '../ui/AuthButton';
+import SessionProvider from '../providers/SessionProvider';
 
 export default function Header() {
   return (
@@ -45,9 +47,9 @@ export default function Header() {
             >
               About
             </Link>
-            <button className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors font-medium ml-2 cursor-pointer">
-              Sign In
-            </button>
+            <SessionProvider>
+              <AuthButton />
+            </SessionProvider>
           </nav>
         </div>
       </div>
