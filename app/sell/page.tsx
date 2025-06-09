@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
+import SelectWithIcon from '../components/ui/SelectWithIcon';
 
 export default function SellPage() {
   const [formData, setFormData] = useState({
@@ -18,6 +19,9 @@ export default function SellPage() {
     contactEmail: '',
     contactPhone: '',
   });
+
+  const selectClassName =
+    'custom-select appearance-none bg-white px-4 py-3 pr-10 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 hover:border-gray-400 transition-colors cursor-pointer w-full';
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -163,13 +167,13 @@ export default function SellPage() {
                   >
                     Condition *
                   </label>
-                  <select
+                  <SelectWithIcon
                     id="condition"
                     name="condition"
                     value={formData.condition}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+                    className={selectClassName}
                   >
                     <option value="">Select condition</option>
                     <option value="Excellent">Excellent</option>
@@ -177,7 +181,7 @@ export default function SellPage() {
                     <option value="Good">Good</option>
                     <option value="Fair">Fair</option>
                     <option value="Poor">Poor</option>
-                  </select>
+                  </SelectWithIcon>
                 </div>
 
                 <div>
@@ -268,13 +272,13 @@ export default function SellPage() {
                   >
                     State *
                   </label>
-                  <select
+                  <SelectWithIcon
                     id="state"
                     name="state"
                     value={formData.state}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+                    className={selectClassName}
                   >
                     <option value="">Select state</option>
                     <option value="CA">California</option>
@@ -286,7 +290,7 @@ export default function SellPage() {
                     <option value="WA">Washington</option>
                     <option value="VA">Virginia</option>
                     <option value="AZ">Arizona</option>
-                  </select>
+                  </SelectWithIcon>
                 </div>
               </div>
             </div>

@@ -1,4 +1,5 @@
 import { getUniqueStates, getLocationsByState } from '@/app/data/surfboards';
+import SelectWithIcon from './SelectWithIcon';
 
 interface FilterBarProps {
   locationFilter: string;
@@ -34,34 +35,6 @@ export default function FilterBar({
 
   const selectClassName =
     'custom-select appearance-none bg-white px-4 py-2.5 pr-10 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 hover:border-gray-400 transition-colors cursor-pointer w-full min-w-0';
-
-  const SelectWithIcon = ({
-    children,
-    className,
-    ...props
-  }: {
-    children: React.ReactNode;
-    className?: string;
-  } & React.SelectHTMLAttributes<HTMLSelectElement>) => (
-    <div className="relative">
-      <select className={className} {...props}>
-        {children}
-      </select>
-      <svg
-        className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M19 9l-7 7-7-7"
-        />
-      </svg>
-    </div>
-  );
 
   return (
     <div className="mb-8">
