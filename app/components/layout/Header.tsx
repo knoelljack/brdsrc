@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import AuthButton from '../ui/AuthButton';
-import SessionProvider from '../providers/SessionProvider';
 
 export default function Header() {
   return (
@@ -47,9 +46,7 @@ export default function Header() {
             >
               About
             </Link>
-            <SessionProvider>
-              <AuthButton />
-            </SessionProvider>
+            <AuthButton />
           </nav>
         </div>
       </div>
