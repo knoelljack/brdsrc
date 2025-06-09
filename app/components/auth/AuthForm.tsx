@@ -1,6 +1,7 @@
 'use client';
 
 import { signIn } from 'next-auth/react';
+import { useState } from 'react';
 import Link from 'next/link';
 
 interface Provider {
@@ -16,6 +17,9 @@ interface AuthFormProps {
 }
 
 export default function AuthForm({ providers }: AuthFormProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
   // Only show if credentials provider is available
   if (!providers?.credentials) return null;
 
@@ -33,17 +37,43 @@ export default function AuthForm({ providers }: AuthFormProps) {
       </div>
 
       <form
-        onSubmit={e => {
+        onSubmit={async e => {
           e.preventDefault();
+          setIsLoading(true);
+          setError('');
+
           const formData = new FormData(e.currentTarget);
-          signIn('credentials', {
-            email: formData.get('email'),
-            password: formData.get('password'),
-            callbackUrl: '/',
-          });
+          const email = formData.get('email') as string;
+          const password = formData.get('password') as string;
+
+          try {
+            const result = await signIn('credentials', {
+              email,
+              password,
+              redirect: false, // Don't redirect automatically
+            });
+
+            if (result?.error) {
+              setError('Invalid email or password. Please try again.');
+            } else if (result?.ok) {
+              // Successful login, redirect to home
+              window.location.href = '/';
+            }
+          } catch (error) {
+            console.error('Sign in error:', error);
+            setError('An unexpected error occurred. Please try again.');
+          } finally {
+            setIsLoading(false);
+          }
         }}
         className="space-y-4"
       >
+        {error && (
+          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
+
         <div>
           <label
             htmlFor="email"
@@ -90,9 +120,10 @@ export default function AuthForm({ providers }: AuthFormProps) {
 
         <button
           type="submit"
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+          disabled={isLoading}
+          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Sign in with Email
+          {isLoading ? 'Signing in...' : 'Sign in with Email'}
         </button>
       </form>
 

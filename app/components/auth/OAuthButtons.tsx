@@ -1,6 +1,7 @@
 'use client';
 
 import { signIn } from 'next-auth/react';
+import { useState } from 'react';
 
 interface Provider {
   id: string;
@@ -15,8 +16,30 @@ interface OAuthButtonsProps {
 }
 
 export default function OAuthButtons({ providers }: OAuthButtonsProps) {
-  const handleSignIn = (providerId: string) => {
-    signIn(providerId, { callbackUrl: '/' });
+  const [error, setError] = useState('');
+  const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
+
+  const handleSignIn = async (providerId: string) => {
+    setLoadingProvider(providerId);
+    setError('');
+
+    try {
+      const result = await signIn(providerId, {
+        callbackUrl: '/',
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError('Authentication failed. Please try again.');
+      } else if (result?.url) {
+        window.location.href = result.url;
+      }
+    } catch (error) {
+      console.error('OAuth sign in error:', error);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoadingProvider(null);
+    }
   };
 
   const getProviderIcon = (providerId: string) => {
@@ -69,14 +92,28 @@ export default function OAuthButtons({ providers }: OAuthButtonsProps) {
 
   return (
     <div className="space-y-4">
+      {error && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-600">{error}</p>
+        </div>
+      )}
+
       {oauthProviders.map(provider => (
         <button
           key={provider.name}
           onClick={() => handleSignIn(provider.id)}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
+          disabled={loadingProvider !== null}
+          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {getProviderIcon(provider.id)}
-          Continue with {provider.name}
+          {loadingProvider === provider.id ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+              Signing in...
+            </>
+          ) : (
+            `Continue with ${provider.name}`
+          )}
         </button>
       ))}
     </div>
