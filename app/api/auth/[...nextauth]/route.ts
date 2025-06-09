@@ -76,7 +76,7 @@ const handler = NextAuth({
       }
       return session;
     },
-    async signIn({ user, account, profile, email, credentials }) {
+    async signIn({ user, account, profile }) {
       // Log detailed info for debugging (remove in production)
       if (process.env.NODE_ENV === 'development') {
         console.log('🔐 NextAuth SignIn Callback:', {
