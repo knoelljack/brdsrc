@@ -3,10 +3,14 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import TermsModal from '../ui/TermsModal';
+import PrivacyModal from '../ui/PrivacyModal';
 
 export default function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -132,13 +136,21 @@ export default function RegisterForm() {
           </div>
         </div>
         <div className="mt-2 text-center">
-          <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
+          <button
+            type="button"
+            onClick={() => setShowTermsModal(true)}
+            className="text-sm text-gray-600 hover:text-gray-900 cursor-pointer"
+          >
             Terms of Service
-          </Link>
+          </button>
           <span className="text-gray-400 mx-2">•</span>
-          <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
+          <button
+            type="button"
+            onClick={() => setShowPrivacyModal(true)}
+            className="text-sm text-gray-600 hover:text-gray-900 cursor-pointer"
+          >
             Privacy Policy
-          </Link>
+          </button>
         </div>
       </div>
 
@@ -150,6 +162,16 @@ export default function RegisterForm() {
           Already have an account? Sign in
         </Link>
       </div>
+
+      {/* Modals */}
+      <TermsModal
+        isOpen={showTermsModal}
+        onClose={() => setShowTermsModal(false)}
+      />
+      <PrivacyModal
+        isOpen={showPrivacyModal}
+        onClose={() => setShowPrivacyModal(false)}
+      />
     </>
   );
 }
