@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"  // Changed from sqlite for Vercel compatibility
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")  // Required for Prisma Accelerate
 }
 
 // NextAuth.js Required Models
