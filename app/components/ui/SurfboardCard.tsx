@@ -1,4 +1,5 @@
 import { Surfboard } from '@/app/data/surfboards';
+import Link from 'next/link';
 
 interface SurfboardCardProps {
   board: Surfboard;
@@ -59,9 +60,12 @@ export default function SurfboardCard({ board }: SurfboardCardProps) {
           {board.description}
         </p>
 
-        <button className="w-full bg-gray-900 text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer mt-auto">
+        <Link
+          href={`/boards/${board.id}`}
+          className="w-full bg-gray-900 text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer mt-auto text-center block"
+        >
           View Details
-        </button>
+        </Link>
       </div>
     </div>
   );
