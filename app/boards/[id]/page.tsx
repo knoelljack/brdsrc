@@ -139,10 +139,10 @@ export default function BoardDetailPage({ params }: BoardDetailPageProps) {
               </div>
 
               <div className="space-y-4">
-                <button className="w-full bg-gray-900 text-white py-3 px-6 rounded-lg hover:bg-gray-800 transition-colors font-medium">
+                <button className="w-full bg-gray-900 text-white py-3 px-6 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer">
                   Contact Seller
                 </button>
-                <button className="w-full bg-white border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                <button className="w-full bg-white border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer">
                   Save to Favorites
                 </button>
               </div>
