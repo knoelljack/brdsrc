@@ -9,7 +9,10 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "cleanup:users": "npx ts-node scripts/cleanup-users.ts",
+    "db:studio": "npx prisma studio",
+    "db:reset": "npx prisma db push --force-reset"
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.7",
