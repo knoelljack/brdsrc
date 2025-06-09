@@ -5,12 +5,14 @@
 ### **1. Google Cloud Console Setup**
 
 ✅ **Check Authorized Redirect URIs:**
+
 ```
 Development: http://localhost:3000/api/auth/callback/google
 Production:  https://your-app.vercel.app/api/auth/callback/google
 ```
 
 **Steps:**
+
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Select your project
 3. Navigate: **APIs & Services → Credentials**
@@ -20,6 +22,7 @@ Production:  https://your-app.vercel.app/api/auth/callback/google
 ### **2. Vercel Environment Variables**
 
 ✅ **Required Variables:**
+
 ```bash
 NEXTAUTH_URL="https://your-app.vercel.app"
 NEXTAUTH_SECRET="secure-random-string-32-chars-min"
@@ -29,6 +32,7 @@ DATABASE_URL="your-production-database-url"
 ```
 
 **Generate NEXTAUTH_SECRET:**
+
 ```bash
 openssl rand -base64 32
 ```
@@ -36,31 +40,37 @@ openssl rand -base64 32
 ### **3. Common Issues & Solutions**
 
 #### **Issue: "redirect_uri_mismatch" Error**
+
 ```
 ❌ Error: The redirect URI in the request does not match
 ```
 
 **Solution:**
+
 - Double-check your Vercel app URL in Google Cloud Console
 - Ensure no trailing slashes in NEXTAUTH_URL
 - Make sure the domain matches exactly (including subdomain)
 
 #### **Issue: "invalid_client" Error**
+
 ```
 ❌ Error: The OAuth client was not found
 ```
 
 **Solution:**
+
 - Verify GOOGLE_CLIENT_ID is correctly set in Vercel
 - Check for extra spaces or characters in environment variables
 - Ensure the client ID matches Google Cloud Console
 
 #### **Issue: Works Locally, Fails in Production**
+
 ```
 ❌ NextAuth configuration error
 ```
 
 **Solution:**
+
 - Check NEXTAUTH_URL points to your Vercel domain
 - Verify all environment variables are set in Vercel dashboard
 - Ensure database is accessible from Vercel (not localhost)
@@ -68,6 +78,7 @@ openssl rand -base64 32
 ### **4. Testing Your Setup**
 
 #### **Local Testing:**
+
 ```bash
 # Test with your local setup
 npm run dev
@@ -75,6 +86,7 @@ npm run dev
 ```
 
 #### **Production Testing:**
+
 ```bash
 # Deploy and test
 vercel --prod
@@ -86,11 +98,13 @@ vercel --prod
 **Enable NextAuth Debug Logging:**
 
 Add to your Vercel environment variables:
+
 ```bash
 NEXTAUTH_DEBUG=true
 ```
 
 **Check Vercel Function Logs:**
+
 1. Go to your Vercel dashboard
 2. Click on your project
 3. Go to **Functions** tab
@@ -112,20 +126,22 @@ NEXTAUTH_DEBUG=true
 #### **If Still Not Working:**
 
 1. **Try OAuth with a simple test:**
+
    ```javascript
    // Test direct Google OAuth (temporary)
    const testGoogleAuth = () => {
      const clientId = process.env.GOOGLE_CLIENT_ID;
      const redirectUri = `${process.env.NEXTAUTH_URL}/api/auth/callback/google`;
-     
+
      console.log('Testing OAuth config:', {
        clientId: clientId?.substring(0, 10) + '...',
-       redirectUri
+       redirectUri,
      });
    };
    ```
 
 2. **Use Vercel's built-in environment variable UI:**
+
    - Go to **Settings → Environment Variables**
    - Add variables one by one
    - Redeploy after adding all variables
@@ -154,7 +170,7 @@ NEXTAUTH_DEBUG=true
 NEXTAUTH_URL="https://your-app.vercel.app/"  # Trailing slash
 NEXTAUTH_URL=your-app.vercel.app             # Missing protocol
 
-# ✅ CORRECT  
+# ✅ CORRECT
 NEXTAUTH_URL="https://your-app.vercel.app"   # No trailing slash, with protocol
 ```
 
@@ -169,4 +185,4 @@ If you're still having issues:
 
 ---
 
-**Pro Tip:** After making changes to Google Cloud Console, it can take a few minutes to propagate. Try waiting 5-10 minutes before testing again. 
+**Pro Tip:** After making changes to Google Cloud Console, it can take a few minutes to propagate. Try waiting 5-10 minutes before testing again.
