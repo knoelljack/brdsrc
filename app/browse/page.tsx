@@ -217,14 +217,14 @@ export default function Browse() {
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors ${
                       selectedCategory === category.id
                         ? 'bg-gray-900 text-white'
                         : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >
                     <span>{category.name}</span>
-                    <span className="float-right text-xs opacity-75">
+                    <span className="text-xs opacity-75">
                       ({category.count})
                     </span>
                   </button>
