@@ -2,7 +2,7 @@ export default function Footer() {
   return (
     <footer className="bg-gray-900 text-white py-12 mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h5 className="text-lg font-semibold mb-4">BoardSource</h5>
             <p className="text-gray-400 text-sm">
@@ -45,26 +45,6 @@ export default function Footer() {
               <li>
                 <a href="#" className="hover:text-white transition-colors">
                   Contact Us
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h6 className="font-semibold mb-3">Connect</h6>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Community
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Newsletter
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Social Media
                 </a>
               </li>
             </ul>
