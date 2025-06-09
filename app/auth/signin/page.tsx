@@ -2,8 +2,9 @@
 
 import { getProviders, getSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { Suspense } from 'react';
 import AuthLayout from '@/app/components/auth/AuthLayout';
 import OAuthButtons from '@/app/components/auth/OAuthButtons';
 import AuthForm from '@/app/components/auth/AuthForm';
@@ -16,11 +17,13 @@ interface Provider {
   callbackUrl: string;
 }
 
-export default function SignIn() {
+function SignInContent() {
   const [providers, setProviders] = useState<Record<string, Provider> | null>(
     null
   );
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const message = searchParams.get('message');
 
   useEffect(() => {
     const fetchProviders = async () => {
@@ -44,6 +47,12 @@ export default function SignIn() {
       title="Sign in to BoardSource"
       subtitle="Connect with surfers worldwide and discover your perfect board"
     >
+      {message && (
+        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+          <p className="text-sm text-green-600">{message}</p>
+        </div>
+      )}
+
       <div className="space-y-4">
         <OAuthButtons providers={providers} />
         <AuthForm providers={providers} />
@@ -71,5 +80,13 @@ export default function SignIn() {
         </div>
       </div>
     </AuthLayout>
+  );
+}
+
+export default function SignIn() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignInContent />
+    </Suspense>
   );
 }
