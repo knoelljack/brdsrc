@@ -76,9 +76,30 @@ const handler = NextAuth({
       }
       return session;
     },
+    async signIn({ user, account, profile }) {
+      // Log detailed info for debugging (remove in production)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔐 NextAuth SignIn Callback:', {
+          user: user?.email,
+          account: account?.provider,
+          profile: profile?.email,
+        });
+      }
+      return true;
+    },
   },
   session: {
     strategy: 'jwt',
+  },
+  debug: process.env.NODE_ENV === 'development',
+  // Add error logging
+  events: {
+    async signIn(message) {
+      console.log('✅ Successful sign in:', message.user.email);
+    },
+    async signOut(message) {
+      console.log('👋 Sign out:', message.session?.user?.email);
+    },
   },
 });
 
