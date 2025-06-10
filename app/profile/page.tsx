@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
@@ -13,10 +13,28 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState({
     name: session?.user?.name || '',
     email: session?.user?.email || '',
-    bio: '',
     location: '',
     phone: '',
   });
+
+  // Load profile data when session is available
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (session?.user?.email) {
+        try {
+          const response = await fetch('/api/profile');
+          if (response.ok) {
+            const profileData = await response.json();
+            setFormData(profileData);
+          }
+        } catch (error) {
+          console.error('Failed to load profile:', error);
+        }
+      }
+    };
+
+    loadProfile();
+  }, [session]);
 
   // Redirect if not authenticated
   if (status === 'loading') {
@@ -47,17 +65,44 @@ export default function ProfilePage() {
   };
 
   const handleSave = async () => {
-    // TODO: Implement profile update API call
-    console.log('Saving profile:', formData);
-    setIsEditing(false);
-    // You would typically make an API call here to update the user profile
+    try {
+      const response = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Profile update failed:', error);
+        alert(error.error || 'Failed to update profile');
+        return;
+      }
+
+      const updatedUser = await response.json();
+      console.log('Profile updated successfully:', updatedUser);
+
+      // Update form data with the response
+      setFormData(prev => ({
+        ...prev,
+        ...updatedUser,
+      }));
+      setIsEditing(false);
+
+      // Show success message
+      alert('Profile updated successfully!');
+    } catch (error) {
+      console.error('Profile update error:', error);
+      alert('Failed to update profile. Please try again.');
+    }
   };
 
   const handleCancel = () => {
     setFormData({
       name: session?.user?.name || '',
       email: session?.user?.email || '',
-      bio: '',
       location: '',
       phone: '',
     });
@@ -183,24 +228,6 @@ export default function ProfilePage() {
                     />
                   </div>
 
-                  <div>
-                    <label
-                      htmlFor="bio"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Bio
-                    </label>
-                    <textarea
-                      id="bio"
-                      name="bio"
-                      value={formData.bio}
-                      onChange={handleInputChange}
-                      rows={4}
-                      placeholder="Tell us about yourself and your surfing experience..."
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-                    />
-                  </div>
-
                   <div className="flex gap-4 pt-4">
                     <button
                       onClick={handleSave}
@@ -249,16 +276,6 @@ export default function ProfilePage() {
                     </label>
                     <p className="text-gray-900">
                       {formData.phone || 'Not provided'}
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Bio
-                    </label>
-                    <p className="text-gray-900">
-                      {formData.bio ||
-                        'Tell us about yourself and your surfing experience...'}
                     </p>
                   </div>
                 </div>
