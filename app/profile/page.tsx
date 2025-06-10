@@ -25,7 +25,12 @@ export default function ProfilePage() {
           const response = await fetch('/api/profile');
           if (response.ok) {
             const profileData = await response.json();
-            setFormData(profileData);
+            setFormData({
+              name: profileData.name || '',
+              email: profileData.email || '',
+              location: profileData.location || '',
+              phone: profileData.phone || '',
+            });
           }
         } catch (error) {
           console.error('Failed to load profile:', error);
@@ -165,7 +170,7 @@ export default function ProfilePage() {
                       type="text"
                       id="name"
                       name="name"
-                      value={formData.name}
+                      value={formData.name || ''}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
                     />
@@ -203,7 +208,7 @@ export default function ProfilePage() {
                       type="text"
                       id="location"
                       name="location"
-                      value={formData.location}
+                      value={formData.location || ''}
                       onChange={handleInputChange}
                       placeholder="City, State"
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
@@ -221,7 +226,7 @@ export default function ProfilePage() {
                       type="tel"
                       id="phone"
                       name="phone"
-                      value={formData.phone}
+                      value={formData.phone || ''}
                       onChange={handleInputChange}
                       placeholder="(555) 123-4567"
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
