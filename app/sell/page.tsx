@@ -2,14 +2,18 @@
 
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import SelectWithIcon from '../components/ui/SelectWithIcon';
 import { CONDITION_OPTIONS } from '../types/filters';
+import FormInput from '../components/ui/FormInput';
 
 export default function SellPage() {
   const { data: session, status } = useSession();
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     brand: '',
@@ -19,8 +23,8 @@ export default function SellPage() {
     description: '',
     city: '',
     state: '',
-    contactName: '',
-    contactEmail: '',
+    contactName: session?.user?.name || '',
+    contactEmail: session?.user?.email || '',
     contactPhone: '',
   });
 
@@ -42,23 +46,52 @@ export default function SellPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (isSubmitting) return; // Prevent double submission
+
     try {
-      // Add coordinates to the form data
+      setIsSubmitting(true);
+
+      // Prepare the data for submission
       const surfboardData = {
-        ...formData,
-        coordinates: await getCoordinatesForLocation(
-          formData.city,
-          formData.state
-        ),
-        location: `${formData.city}, ${formData.state}`,
-        id: Date.now(), // Generate a unique ID
+        title: formData.title,
+        brand: formData.brand,
+        length: formData.length,
+        condition: formData.condition,
+        price: formData.price,
+        description: formData.description,
+        city: formData.city,
+        state: formData.state,
+        // Note: We'll add coordinates functionality later
       };
 
-      console.log('Form submitted with coordinates:', surfboardData);
-      // Send to your API endpoint
-      // await fetch('/api/surfboards', { method: 'POST', body: JSON.stringify(surfboardData) });
+      const response = await fetch('/api/surfboards', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(surfboardData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to create listing');
+      }
+
+      // Success! Redirect to my listings page
+      alert(
+        `Success! Your surfboard "${result.surfboard.title}" has been listed.`
+      );
+      router.push('/my-listings');
     } catch (error) {
       console.error('Error submitting form:', error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : 'Failed to create listing. Please try again.'
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -170,62 +203,38 @@ export default function SellPage() {
                   Basic Information
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label
-                      htmlFor="title"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Title *
-                    </label>
-                    <input
-                      type="text"
-                      id="title"
-                      name="title"
-                      value={formData.title}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="e.g., 9'6'' Classic Longboard"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-                    />
-                  </div>
+                  <FormInput
+                    id="title"
+                    name="title"
+                    type="text"
+                    value={formData.title}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="e.g., 9'6'' Classic Longboard"
+                    label="Title"
+                  />
 
-                  <div>
-                    <label
-                      htmlFor="brand"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Brand *
-                    </label>
-                    <input
-                      type="text"
-                      id="brand"
-                      name="brand"
-                      value={formData.brand}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="e.g., Channel Islands, Lost, Stewart"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-                    />
-                  </div>
+                  <FormInput
+                    id="brand"
+                    name="brand"
+                    type="text"
+                    value={formData.brand}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="e.g., Channel Islands, Lost, Stewart"
+                    label="Brand"
+                  />
 
-                  <div>
-                    <label
-                      htmlFor="length"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Length *
-                    </label>
-                    <input
-                      type="text"
-                      id="length"
-                      name="length"
-                      value={formData.length}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="e.g., 9'6'', 6'2''"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-                    />
-                  </div>
+                  <FormInput
+                    id="length"
+                    name="length"
+                    type="text"
+                    value={formData.length}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="e.g., 9'6'', 6'2''"
+                    label="Length"
+                  />
 
                   <div>
                     <label
@@ -262,16 +271,16 @@ export default function SellPage() {
                       <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">
                         $
                       </span>
-                      <input
-                        type="number"
+                      <FormInput
                         id="price"
                         name="price"
+                        type="number"
                         value={formData.price}
                         onChange={handleInputChange}
                         required
                         min="1"
                         placeholder="500"
-                        className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+                        className="pl-8 pr-4"
                       />
                     </div>
                   </div>
@@ -283,28 +292,18 @@ export default function SellPage() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
                   Description
                 </h3>
-                <div>
-                  <label
-                    htmlFor="description"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Tell us about your surfboard *
-                  </label>
-                  <textarea
-                    id="description"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    required
-                    rows={5}
-                    placeholder="Describe the surfboard's features, any damage, why you're selling, etc."
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 resize-none"
-                  />
-                  <p className="text-sm text-gray-500 mt-2">
-                    Be honest about the condition and include any relevant
-                    details buyers should know.
-                  </p>
-                </div>
+                <FormInput
+                  id="description"
+                  name="description"
+                  type="textarea"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  required
+                  rows={5}
+                  placeholder="Describe the surfboard's features, any damage, why you're selling, etc."
+                  label="Tell us about your surfboard"
+                  helpText="Be honest about the condition and include any relevant details buyers should know."
+                />
               </div>
 
               {/* Location */}
@@ -313,24 +312,16 @@ export default function SellPage() {
                   Location
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label
-                      htmlFor="city"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      City *
-                    </label>
-                    <input
-                      type="text"
-                      id="city"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="e.g., San Diego"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-                    />
-                  </div>
+                  <FormInput
+                    id="city"
+                    name="city"
+                    type="text"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="e.g., San Diego"
+                    label="City"
+                  />
 
                   <div>
                     <label
@@ -396,60 +387,38 @@ export default function SellPage() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="md:col-span-2">
-                    <label
-                      htmlFor="contactName"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Your Name *
-                    </label>
-                    <input
-                      type="text"
+                    <FormInput
                       id="contactName"
                       name="contactName"
+                      type="text"
                       value={formData.contactName}
                       onChange={handleInputChange}
                       required
                       placeholder="John Doe"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+                      label="Your Name"
                     />
                   </div>
 
-                  <div>
-                    <label
-                      htmlFor="contactEmail"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Email *
-                    </label>
-                    <input
-                      type="email"
-                      id="contactEmail"
-                      name="contactEmail"
-                      value={formData.contactEmail}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="john@example.com"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-                    />
-                  </div>
+                  <FormInput
+                    id="contactEmail"
+                    name="contactEmail"
+                    type="email"
+                    value={formData.contactEmail}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="john@example.com"
+                    label="Email"
+                  />
 
-                  <div>
-                    <label
-                      htmlFor="contactPhone"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Phone (Optional)
-                    </label>
-                    <input
-                      type="tel"
-                      id="contactPhone"
-                      name="contactPhone"
-                      value={formData.contactPhone}
-                      onChange={handleInputChange}
-                      placeholder="(555) 123-4567"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-                    />
-                  </div>
+                  <FormInput
+                    id="contactPhone"
+                    name="contactPhone"
+                    type="tel"
+                    value={formData.contactPhone}
+                    onChange={handleInputChange}
+                    placeholder="(555) 123-4567"
+                    label="Phone (Optional)"
+                  />
                 </div>
               </div>
 
@@ -480,13 +449,22 @@ export default function SellPage() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button
                     type="submit"
-                    className="flex-1 bg-gray-900 text-white py-3 px-6 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+                    disabled={isSubmitting}
+                    className="flex-1 bg-gray-900 text-white py-3 px-6 rounded-lg hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center"
                   >
-                    List My Surfboard
+                    {isSubmitting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Creating Listing...
+                      </>
+                    ) : (
+                      'List My Surfboard'
+                    )}
                   </button>
                   <button
                     type="button"
-                    className="flex-1 bg-white border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                    disabled={isSubmitting}
+                    className="flex-1 bg-white border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors font-medium"
                   >
                     Save as Draft
                   </button>

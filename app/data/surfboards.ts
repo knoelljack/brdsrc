@@ -1,7 +1,7 @@
 import { SurfboardCondition } from '../types/filters';
 
 export interface Surfboard {
-  id: number;
+  id: number | string; // Can be number (dummy data) or string (database)
   title: string;
   brand: string;
   length: string;
@@ -15,6 +15,15 @@ export interface Surfboard {
     lng: number;
   };
   description: string;
+  // Optional fields from database
+  createdAt?: string | Date;
+  images?: string[];
+  userId?: string;
+  status?: string;
+  seller?: {
+    name: string | null;
+    email: string | null;
+  };
 }
 
 export const surfboards: Surfboard[] = [

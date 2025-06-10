@@ -130,7 +130,14 @@ export default function Home() {
         filtered.sort((a, b) => a.location.localeCompare(b.location));
         break;
       default: // newest
-        filtered.sort((a, b) => b.id - a.id); // Assuming higher ID = newer
+        filtered.sort((a, b) => {
+          // For numeric IDs (dummy data), sort numerically
+          if (typeof a.id === 'number' && typeof b.id === 'number') {
+            return b.id - a.id;
+          }
+          // For string IDs, use string comparison
+          return String(b.id).localeCompare(String(a.id));
+        });
     }
 
     return filtered;
