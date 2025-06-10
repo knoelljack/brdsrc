@@ -4,10 +4,10 @@ import { surfboards as dummySurfboards } from '@/app/data/surfboards';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // First, try to find in database (real listings)
     if (id && isNaN(Number(id))) {
