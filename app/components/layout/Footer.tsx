@@ -13,18 +13,16 @@ export default function Footer() {
             <h6 className="font-semibold mb-3">Marketplace</h6>
             <ul className="space-y-2 text-sm text-gray-400">
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a
+                  href="/browse"
+                  className="hover:text-white transition-colors"
+                >
                   Browse Boards
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="/sell" className="hover:text-white transition-colors">
                   Sell Your Board
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Pricing Guide
                 </a>
               </li>
             </ul>
@@ -33,17 +31,10 @@ export default function Footer() {
             <h6 className="font-semibold mb-3">Support</h6>
             <ul className="space-y-2 text-sm text-gray-400">
               <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Help Center
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Safety Tips
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a
+                  href="mailto:hello@brdsrc.com"
+                  className="hover:text-white transition-colors"
+                >
                   Contact Us
                 </a>
               </li>
@@ -51,7 +42,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-          <p>&copy; 2024 BoardSource. All rights reserved.</p>
+          <p>&copy; 2025 BoardSource. All rights reserved.</p>
         </div>
       </div>
     </footer>
