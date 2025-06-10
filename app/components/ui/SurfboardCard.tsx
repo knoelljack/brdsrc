@@ -1,6 +1,7 @@
 import { Surfboard } from '@/app/data/surfboards';
 import Link from 'next/link';
 import { getConditionStyles } from '@/app/types/filters';
+import { isBoardNew } from '@/app/utils/dateUtils';
 
 interface SurfboardCardProps {
   board: Surfboard;
@@ -32,7 +33,16 @@ export default function SurfboardCard({ board }: SurfboardCardProps) {
       {/* Card Content */}
       <div className="p-6 flex flex-col flex-grow">
         <div className="flex justify-between items-start mb-2">
-          <h4 className="text-lg font-semibold text-gray-900">{board.title}</h4>
+          <div className="flex items-center gap-2">
+            <h4 className="text-lg font-semibold text-gray-900">
+              {board.title}
+            </h4>
+            {isBoardNew(board.createdAt) && (
+              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                New
+              </span>
+            )}
+          </div>
           <span className="text-lg font-bold text-gray-900">
             ${board.price}
           </span>

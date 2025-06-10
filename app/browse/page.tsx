@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import FilterBar from '../components/ui/FilterBar';
 import SurfboardGrid from '../components/ui/SurfboardGrid';
-import { surfboards } from '../data/surfboards';
+import { surfboards as dummySurfboards, Surfboard } from '../data/surfboards';
+import { isBoardNew } from '../utils/dateUtils';
 
 export default function Browse() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,6 +18,40 @@ export default function Browse() {
   const [sortBy, setSortBy] = useState('newest');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [realSurfboards, setRealSurfboards] = useState<Surfboard[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Combine dummy and real surfboards
+  const allSurfboards = useMemo(() => {
+    // For now, we'll show dummy data with higher IDs to avoid conflicts
+    const adjustedDummyBoards = dummySurfboards.map(board => ({
+      ...board,
+      id: (board.id as number) + 10000, // Add offset to avoid ID conflicts
+    }));
+
+    return [...realSurfboards, ...adjustedDummyBoards];
+  }, [realSurfboards]);
+
+  // Fetch real surfboards from API
+  useEffect(() => {
+    const fetchSurfboards = async () => {
+      try {
+        const response = await fetch('/api/surfboards/browse');
+        if (response.ok) {
+          const data = await response.json();
+          setRealSurfboards(data.surfboards);
+        } else {
+          console.error('Failed to fetch surfboards');
+        }
+      } catch (error) {
+        console.error('Error fetching surfboards:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSurfboards();
+  }, []);
 
   // Parse length from string (e.g. "9'6"" -> 9.5)
   const parseLength = (lengthStr: string): number => {
@@ -31,16 +66,17 @@ export default function Browse() {
 
   // Get categories based on board lengths
   const categories = [
-    { id: '', name: 'All Boards', count: surfboards.length },
+    { id: '', name: 'All Boards', count: allSurfboards.length },
     {
       id: 'longboards',
       name: "Longboards (9'+)",
-      count: surfboards.filter(b => parseLength(b.length) >= 9).length,
+      count: allSurfboards.filter((b: Surfboard) => parseLength(b.length) >= 9)
+        .length,
     },
     {
       id: 'midlength',
       name: "Mid-length (7'-9')",
-      count: surfboards.filter(b => {
+      count: allSurfboards.filter((b: Surfboard) => {
         const l = parseLength(b.length);
         return l >= 7 && l < 9;
       }).length,
@@ -48,13 +84,14 @@ export default function Browse() {
     {
       id: 'shortboards',
       name: "Shortboards (Under 7')",
-      count: surfboards.filter(b => parseLength(b.length) < 7).length,
+      count: allSurfboards.filter((b: Surfboard) => parseLength(b.length) < 7)
+        .length,
     },
   ];
 
   // Filter and sort surfboards
   const filteredBoards = useMemo(() => {
-    let filtered = [...surfboards];
+    let filtered = [...allSurfboards];
 
     // Search filter
     if (searchTerm.trim()) {
@@ -151,11 +188,25 @@ export default function Browse() {
         filtered.sort((a, b) => a.location.localeCompare(b.location));
         break;
       default: // newest
-        filtered.sort((a, b) => b.id - a.id);
+        filtered.sort((a, b) => {
+          // For newest sorting, use createdAt if available, otherwise fall back to ID comparison
+          if (a.createdAt && b.createdAt) {
+            return (
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+          }
+          // Fallback to ID comparison for dummy data (numbers)
+          if (typeof a.id === 'number' && typeof b.id === 'number') {
+            return b.id - a.id;
+          }
+          // For string IDs, use string comparison (newest first)
+          return String(b.id).localeCompare(String(a.id));
+        });
     }
 
     return filtered;
   }, [
+    allSurfboards,
     searchTerm,
     selectedCategory,
     locationFilter,
@@ -279,7 +330,12 @@ export default function Browse() {
             />
 
             {/* Results */}
-            {viewMode === 'grid' ? (
+            {isLoading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading surfboards...</p>
+              </div>
+            ) : viewMode === 'grid' ? (
               <SurfboardGrid boards={filteredBoards} />
             ) : (
               <div className="space-y-4">
@@ -341,9 +397,16 @@ export default function Browse() {
                           {/* Content */}
                           <div className="flex-1">
                             <div className="flex justify-between items-start mb-2">
-                              <h3 className="text-xl font-semibold text-gray-900">
-                                {board.title}
-                              </h3>
+                              <div className="flex items-center gap-2">
+                                <h3 className="text-xl font-semibold text-gray-900">
+                                  {board.title}
+                                </h3>
+                                {isBoardNew(board.createdAt) && (
+                                  <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                                    New
+                                  </span>
+                                )}
+                              </div>
                               <span className="text-2xl font-bold text-gray-900">
                                 ${board.price}
                               </span>

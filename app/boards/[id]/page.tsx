@@ -1,9 +1,9 @@
 'use client';
 
-import { use } from 'react';
+import { use, useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { surfboards } from '@/app/data/surfboards';
+import { Surfboard } from '@/app/data/surfboards';
 import Header from '@/app/components/layout/Header';
 import Footer from '@/app/components/layout/Footer';
 import { getConditionStyles } from '@/app/types/filters';
@@ -16,9 +16,52 @@ interface BoardDetailPageProps {
 
 export default function BoardDetailPage({ params }: BoardDetailPageProps) {
   const { id } = use(params);
-  const board = surfboards.find(b => b.id === parseInt(id));
+  const [board, setBoard] = useState<Surfboard | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!board) {
+  useEffect(() => {
+    const fetchBoard = async () => {
+      try {
+        const response = await fetch(`/api/boards/${id}`);
+
+        if (response.status === 404) {
+          notFound();
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch board details');
+        }
+
+        const data = await response.json();
+        setBoard(data.surfboard);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load board');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBoard();
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+        <Header />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading board details...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !board) {
     notFound();
   }
 
