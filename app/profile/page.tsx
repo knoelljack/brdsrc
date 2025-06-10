@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
@@ -16,8 +16,33 @@ export default function ProfilePage() {
     location: '',
     phone: '',
   });
+  const [stats, setStats] = useState({
+    boardsListed: 0,
+    boardsActive: 0,
+    boardsSold: 0,
+    boardsPending: 0,
+  });
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
 
-  // Load profile data when session is available
+  // Function to load stats
+  const loadStats = useCallback(async () => {
+    if (session?.user?.email) {
+      try {
+        setIsLoadingStats(true);
+        const response = await fetch('/api/profile/stats');
+        if (response.ok) {
+          const statsData = await response.json();
+          setStats(statsData);
+        }
+      } catch (error) {
+        console.error('Failed to load stats:', error);
+      } finally {
+        setIsLoadingStats(false);
+      }
+    }
+  }, [session?.user?.email]);
+
+  // Load profile data and stats when session is available
   useEffect(() => {
     const loadProfile = async () => {
       if (session?.user?.email) {
@@ -39,7 +64,8 @@ export default function ProfilePage() {
     };
 
     loadProfile();
-  }, [session]);
+    loadStats();
+  }, [session, loadStats]);
 
   // Redirect if not authenticated
   if (status === 'loading') {
@@ -335,23 +361,68 @@ export default function ProfilePage() {
 
             {/* Account Stats */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Account Stats
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Boards Listed</span>
-                  <span className="font-medium text-gray-900">0</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Boards Sold</span>
-                  <span className="font-medium text-gray-900">0</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Profile Views</span>
-                  <span className="font-medium text-gray-900">0</span>
-                </div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Account Stats
+                </h3>
+                <button
+                  onClick={loadStats}
+                  disabled={isLoadingStats}
+                  className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                  title="Refresh stats"
+                >
+                  <svg
+                    className={`w-4 h-4 ${isLoadingStats ? 'animate-spin' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                </button>
               </div>
+              {isLoadingStats ? (
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Loading...</span>
+                    <div className="w-6 h-4 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Boards Listed</span>
+                    <span className="font-medium text-gray-900">
+                      {stats.boardsListed}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Boards Active</span>
+                    <span className="font-medium text-green-600">
+                      {stats.boardsActive}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Boards Sold</span>
+                    <span className="font-medium text-blue-600">
+                      {stats.boardsSold}
+                    </span>
+                  </div>
+                  {stats.boardsPending > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Boards Pending</span>
+                      <span className="font-medium text-yellow-600">
+                        {stats.boardsPending}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
