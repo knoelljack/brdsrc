@@ -21,8 +21,17 @@ export default function HeroSection({
     }
   };
   return (
-    <section className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white py-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <section
+      className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white py-20 bg-cover bg-center bg-no-repeat"
+      style={{
+        backgroundImage: 'url(/wave-background.jpeg)',
+        backgroundBlendMode: 'overlay',
+      }}
+    >
+      {/* Overlay for better text readability */}
+      <div className="absolute inset-0 bg-gray-900/60"></div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Free to Use Badge */}
         <div className="inline-flex items-center gap-2 bg-green-500/20 border border-green-400/30 rounded-full px-4 py-2 mb-6">
           <svg
