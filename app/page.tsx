@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import HeroSection from './components/ui/HeroSection';
 import FilterBar from './components/ui/FilterBar';
 import SurfboardGrid from './components/ui/SurfboardGrid';
 import NearMeSection from './components/ui/NearMeSection';
-import { surfboards } from './data/surfboards';
+import { surfboards as dummySurfboards, Surfboard } from './data/surfboards';
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,8 +17,39 @@ export default function Home() {
   const [conditionFilter, setConditionFilter] = useState('');
   const [sortBy, setSortBy] = useState('newest');
   const [displayCount, setDisplayCount] = useState(9);
+  const [realSurfboards, setRealSurfboards] = useState<Surfboard[]>([]);
 
   const availableBoardsRef = useRef<HTMLDivElement>(null);
+
+  // Combine dummy and real surfboards
+  const allSurfboards = useMemo(() => {
+    // Add offset to dummy board IDs to avoid conflicts
+    const adjustedDummyBoards = dummySurfboards.map(board => ({
+      ...board,
+      id: (board.id as number) + 10000,
+    }));
+
+    return [...realSurfboards, ...adjustedDummyBoards];
+  }, [realSurfboards]);
+
+  // Fetch real surfboards from API
+  useEffect(() => {
+    const fetchSurfboards = async () => {
+      try {
+        const response = await fetch('/api/surfboards/browse');
+        if (response.ok) {
+          const data = await response.json();
+          setRealSurfboards(data.surfboards);
+        } else {
+          console.error('Failed to fetch surfboards');
+        }
+      } catch (error) {
+        console.error('Error fetching surfboards:', error);
+      }
+    };
+
+    fetchSurfboards();
+  }, []);
 
   // Handle text input change (no scroll)
   const handleSearchChange = (value: string) => {
@@ -49,7 +80,7 @@ export default function Home() {
 
   // Filter and sort surfboards
   const filteredBoards = useMemo(() => {
-    let filtered = [...surfboards];
+    let filtered = [...allSurfboards];
 
     // Search filter
     if (searchTerm.trim()) {
@@ -142,6 +173,7 @@ export default function Home() {
 
     return filtered;
   }, [
+    allSurfboards,
     searchTerm,
     locationFilter,
     lengthFilter,
