@@ -4,7 +4,7 @@ import { authOptions } from '@/app/lib/auth-config';
 import { prisma } from '@/app/lib/prisma';
 
 interface UserListing {
-  id: number;
+  id: string;
   title: string;
   brand: string;
   length: string;
@@ -77,7 +77,7 @@ export async function GET() {
     // Transform to match frontend interface
     const formattedListings: UserListing[] = listings.map(
       (listing: SurfboardSelect) => ({
-        id: parseInt(listing.id), // Convert string ID to number for frontend
+        id: listing.id, // Keep string ID from database
         title: listing.title,
         brand: listing.brand,
         length: listing.length,
