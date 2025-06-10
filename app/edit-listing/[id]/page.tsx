@@ -5,7 +5,12 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
-import FormInput from '../../components/ui/FormInput';
+import BasicBoardInfo from '../../components/listings/forms/BasicBoardInfo';
+import BoardConditionStatus from '../../components/listings/forms/BoardConditionStatus';
+import LocationInfo from '../../components/listings/forms/LocationInfo';
+import BoardDescription from '../../components/listings/forms/BoardDescription';
+
+import { SurfboardCondition, ListingStatus } from '@/types/surfboard';
 
 interface ListingData {
   id: string;
@@ -13,13 +18,13 @@ interface ListingData {
   brand: string;
   length: string;
   price: number;
-  condition: string;
+  condition: SurfboardCondition;
   description: string;
   location: string;
   city: string;
   state: string;
   images: string[];
-  status: string;
+  status: ListingStatus;
 }
 
 export default function EditListingPage() {
@@ -36,7 +41,7 @@ export default function EditListingPage() {
     brand: '',
     length: '',
     price: 0,
-    condition: '',
+    condition: undefined,
     description: '',
     location: '',
     city: '',
@@ -87,15 +92,15 @@ export default function EditListingPage() {
     return null;
   }
 
-  const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value } = e.target;
+  const handleFieldChange = (name: string, value: string | number) => {
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'price' ? parseFloat(value) || 0 : value,
+      [name]:
+        name === 'price'
+          ? typeof value === 'string'
+            ? parseFloat(value) || 0
+            : value
+          : value,
     }));
   };
 
@@ -226,141 +231,27 @@ export default function EditListingPage() {
         )}
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormInput
-                id="title"
-                label="Board Title"
-                name="title"
-                type="text"
-                value={formData.title || ''}
-                onChange={handleInputChange}
-                placeholder="e.g., Used 6'2 Shortboard"
-                required
-              />
-              <FormInput
-                id="brand"
-                label="Brand"
-                name="brand"
-                type="text"
-                value={formData.brand || ''}
-                onChange={handleInputChange}
-                placeholder="e.g., Lost, DHD, Firewire"
-                required
-              />
-            </div>
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <BasicBoardInfo data={formData} onChange={handleFieldChange} />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormInput
-                id="length"
-                label="Length"
-                name="length"
-                type="text"
-                value={formData.length || ''}
-                onChange={handleInputChange}
-                placeholder="e.g., 6'2"
-                required
-              />
-              <FormInput
-                id="price"
-                label="Price ($)"
-                name="price"
-                type="number"
-                value={formData.price || ''}
-                onChange={handleInputChange}
-                placeholder="0"
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label
-                  htmlFor="condition"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Condition <span className="text-red-500">*</span>
-                </label>
-                <select
-                  id="condition"
-                  name="condition"
-                  value={formData.condition || ''}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-                >
-                  <option value="">Select condition</option>
-                  <option value="New">New</option>
-                  <option value="Like New">Like New</option>
-                  <option value="Good">Good</option>
-                  <option value="Fair">Fair</option>
-                  <option value="Poor">Poor</option>
-                </select>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="status"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Status
-                </label>
-                <select
-                  id="status"
-                  name="status"
-                  value={formData.status || 'active'}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-                >
-                  <option value="active">Active</option>
-                  <option value="pending">Pending Sale</option>
-                  <option value="sold">Sold</option>
-                </select>
-              </div>
-            </div>
-
-            <FormInput
-              id="location"
-              label="Location"
-              name="location"
-              type="text"
-              value={formData.location || ''}
-              onChange={handleInputChange}
-              placeholder="e.g., San Diego, CA"
-              helpText="Where is the board located for pickup/viewing?"
-              required
+            <BoardConditionStatus
+              data={formData}
+              onChange={handleFieldChange}
+              showStatus={true}
+              statusValue={formData.status}
+              onStatusChange={handleFieldChange}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormInput
-                id="city"
-                label="City"
-                name="city"
-                type="text"
-                value={formData.city || ''}
-                onChange={handleInputChange}
-                placeholder="e.g., San Diego"
-              />
-              <FormInput
-                id="state"
-                label="State"
-                name="state"
-                type="text"
-                value={formData.state || ''}
-                onChange={handleInputChange}
-                placeholder="e.g., CA"
-              />
-            </div>
+            <LocationInfo
+              data={formData}
+              onChange={handleFieldChange}
+              mode="edit"
+            />
 
-            <FormInput
-              id="description"
-              label="Description"
-              name="description"
-              type="textarea"
-              value={formData.description || ''}
-              onChange={handleInputChange}
-              placeholder="Describe the surfboard's condition, history, and any notable features..."
-              helpText="Provide details about dings, repairs, performance, etc."
+            <BoardDescription
+              data={formData}
+              onChange={handleFieldChange}
+              mode="edit"
             />
 
             <div className="flex gap-4 pt-6 border-t border-gray-200">
