@@ -6,38 +6,33 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
-import SelectWithIcon from '../components/ui/SelectWithIcon';
-import { CONDITION_OPTIONS } from '../types/filters';
-import FormInput from '../components/ui/FormInput';
+import {
+  BasicBoardInfo,
+  BoardConditionStatus,
+  LocationInfo,
+  BoardDescription,
+  ContactInfo,
+  useListingForm,
+} from '../components/listings';
 
 export default function SellPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    title: '',
-    brand: '',
-    length: '',
-    condition: '',
-    price: '',
-    description: '',
-    city: '',
-    state: '',
+
+  const { formData, handleChange, validateForm } = useListingForm({
+    mode: 'create',
+  });
+
+  // Contact info state
+  const [contactInfo, setContactInfo] = useState({
     contactName: session?.user?.name || '',
     contactEmail: session?.user?.email || '',
     contactPhone: '',
   });
 
-  const selectClassName =
-    'custom-select appearance-none bg-white px-4 py-3 pr-10 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 hover:border-gray-400 transition-colors cursor-pointer w-full';
-
-  const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
+  const handleContactChange = (name: string, value: string) => {
+    setContactInfo(prev => ({
       ...prev,
       [name]: value,
     }));
@@ -46,22 +41,24 @@ export default function SellPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isSubmitting) return; // Prevent double submission
+    if (isSubmitting) return;
+
+    // Validate both form data and contact info
+    if (!validateForm()) {
+      return;
+    }
+
+    if (!contactInfo.contactName || !contactInfo.contactEmail) {
+      alert('Please provide contact information');
+      return;
+    }
 
     try {
       setIsSubmitting(true);
 
-      // Prepare the data for submission
       const surfboardData = {
-        title: formData.title,
-        brand: formData.brand,
-        length: formData.length,
-        condition: formData.condition,
-        price: formData.price,
-        description: formData.description,
-        city: formData.city,
-        state: formData.state,
-        // Note: We'll add coordinates functionality later
+        ...formData,
+        ...contactInfo,
       };
 
       const response = await fetch('/api/surfboards', {
@@ -78,7 +75,6 @@ export default function SellPage() {
         throw new Error(result.error || 'Failed to create listing');
       }
 
-      // Success! Redirect to my listings page
       alert(
         `Success! Your surfboard "${result.surfboard.title}" has been listed.`
       );
@@ -197,161 +193,21 @@ export default function SellPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="p-8 space-y-8">
-              {/* Basic Information */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Basic Information
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormInput
-                    id="title"
-                    name="title"
-                    type="text"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="e.g., 9'6'' Classic Longboard"
-                    label="Title"
-                  />
+              <BasicBoardInfo data={formData} onChange={handleChange} />
 
-                  <FormInput
-                    id="brand"
-                    name="brand"
-                    type="text"
-                    value={formData.brand}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="e.g., Channel Islands, Lost, Stewart"
-                    label="Brand"
-                  />
+              <BoardConditionStatus data={formData} onChange={handleChange} />
 
-                  <FormInput
-                    id="length"
-                    name="length"
-                    type="text"
-                    value={formData.length}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="e.g., 9'6'', 6'2''"
-                    label="Length"
-                  />
+              <LocationInfo
+                data={formData}
+                onChange={handleChange}
+                mode="create"
+              />
 
-                  <div>
-                    <label
-                      htmlFor="condition"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Condition *
-                    </label>
-                    <SelectWithIcon
-                      id="condition"
-                      name="condition"
-                      value={formData.condition}
-                      onChange={handleInputChange}
-                      required
-                      className={selectClassName}
-                    >
-                      <option value="">Select condition</option>
-                      {CONDITION_OPTIONS.map(condition => (
-                        <option key={condition} value={condition}>
-                          {condition}
-                        </option>
-                      ))}
-                    </SelectWithIcon>
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="price"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Price (USD) *
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">
-                        $
-                      </span>
-                      <FormInput
-                        id="price"
-                        name="price"
-                        type="number"
-                        value={formData.price}
-                        onChange={handleInputChange}
-                        required
-                        min="1"
-                        placeholder="500"
-                        className="pl-8 pr-4"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Description */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Description
-                </h3>
-                <FormInput
-                  id="description"
-                  name="description"
-                  type="textarea"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  required
-                  rows={5}
-                  placeholder="Describe the surfboard's features, any damage, why you're selling, etc."
-                  label="Tell us about your surfboard"
-                  helpText="Be honest about the condition and include any relevant details buyers should know."
-                />
-              </div>
-
-              {/* Location */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Location
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormInput
-                    id="city"
-                    name="city"
-                    type="text"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="e.g., San Diego"
-                    label="City"
-                  />
-
-                  <div>
-                    <label
-                      htmlFor="state"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      State *
-                    </label>
-                    <SelectWithIcon
-                      id="state"
-                      name="state"
-                      value={formData.state}
-                      onChange={handleInputChange}
-                      required
-                      className={selectClassName}
-                    >
-                      <option value="">Select state</option>
-                      <option value="CA">California</option>
-                      <option value="FL">Florida</option>
-                      <option value="HI">Hawaii</option>
-                      <option value="NC">North Carolina</option>
-                      <option value="OR">Oregon</option>
-                      <option value="TX">Texas</option>
-                      <option value="WA">Washington</option>
-                      <option value="VA">Virginia</option>
-                      <option value="AZ">Arizona</option>
-                    </SelectWithIcon>
-                  </div>
-                </div>
-              </div>
+              <BoardDescription
+                data={formData}
+                onChange={handleChange}
+                mode="create"
+              />
 
               {/* Photos */}
               <div>
@@ -380,47 +236,7 @@ export default function SellPage() {
                 </div>
               </div>
 
-              {/* Contact Information */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Contact Information
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="md:col-span-2">
-                    <FormInput
-                      id="contactName"
-                      name="contactName"
-                      type="text"
-                      value={formData.contactName}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="John Doe"
-                      label="Your Name"
-                    />
-                  </div>
-
-                  <FormInput
-                    id="contactEmail"
-                    name="contactEmail"
-                    type="email"
-                    value={formData.contactEmail}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="john@example.com"
-                    label="Email"
-                  />
-
-                  <FormInput
-                    id="contactPhone"
-                    name="contactPhone"
-                    type="tel"
-                    value={formData.contactPhone}
-                    onChange={handleInputChange}
-                    placeholder="(555) 123-4567"
-                    label="Phone (Optional)"
-                  />
-                </div>
-              </div>
+              <ContactInfo data={contactInfo} onChange={handleContactChange} />
 
               {/* Terms and Submit */}
               <div className="border-t border-gray-200 pt-8">
