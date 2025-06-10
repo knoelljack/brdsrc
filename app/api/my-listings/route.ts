@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/lib/auth-config';
+import { prisma } from '@/app/lib/prisma';
 
 interface UserListing {
   id: number;
@@ -18,6 +19,22 @@ interface UserListing {
   status: 'active' | 'sold' | 'pending';
 }
 
+type SurfboardSelect = {
+  id: string;
+  title: string;
+  brand: string;
+  length: string;
+  condition: string;
+  price: number;
+  images: string[];
+  description: string;
+  location: string;
+  city: string;
+  state: string;
+  status: string;
+  createdAt: Date;
+};
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -26,34 +43,57 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // For now, return empty array since we don't have surfboard listings in the database yet
-    // This is where you would query the database for user's listings:
-    // const listings = await prisma.surfboard.findMany({
-    //   where: { userId: session.user.id },
-    //   orderBy: { createdAt: 'desc' }
-    // });
+    // Get user ID from session
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true },
+    });
 
-    // Mock data for demonstration - replace with real database query
-    const mockListings: UserListing[] = [
-      // You can add mock listings here for testing
-      // {
-      //   id: 1,
-      //   title: "9'6\" Performance Longboard",
-      //   brand: "Bing Surfboards",
-      //   length: "9'6\"",
-      //   condition: "Good",
-      //   price: 850,
-      //   images: ["/placeholder-board.jpg"],
-      //   description: "Classic performance longboard in great condition. Perfect for nose riding and cruising small to medium waves.",
-      //   location: "Malibu, CA",
-      //   city: "Malibu",
-      //   state: "CA",
-      //   createdAt: new Date().toISOString(),
-      //   status: "active" as const
-      // }
-    ];
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
 
-    return NextResponse.json(mockListings);
+    // Query database for user's listings
+    const listings = await prisma.surfboard.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        brand: true,
+        length: true,
+        condition: true,
+        price: true,
+        images: true,
+        description: true,
+        location: true,
+        city: true,
+        state: true,
+        status: true,
+        createdAt: true,
+      },
+    });
+
+    // Transform to match frontend interface
+    const formattedListings: UserListing[] = listings.map(
+      (listing: SurfboardSelect) => ({
+        id: parseInt(listing.id), // Convert string ID to number for frontend
+        title: listing.title,
+        brand: listing.brand,
+        length: listing.length,
+        condition: listing.condition,
+        price: listing.price,
+        images: listing.images,
+        description: listing.description,
+        location: listing.location,
+        city: listing.city,
+        state: listing.state,
+        status: listing.status as 'active' | 'sold' | 'pending',
+        createdAt: listing.createdAt.toISOString(),
+      })
+    );
+
+    return NextResponse.json(formattedListings);
   } catch (error) {
     console.error('My listings fetch error:', error);
     return NextResponse.json(

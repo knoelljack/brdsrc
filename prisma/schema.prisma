@@ -54,9 +54,7 @@ model User {
   
   accounts Account[]
   sessions Session[]
-  
-  // Future: Link to surfboard listings
-  // surfboards Surfboard[]
+  surfboards Surfboard[]
 }
 
 model VerificationToken {
@@ -65,4 +63,25 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Surfboard {
+  id          String   @id @default(cuid())
+  title       String
+  brand       String
+  length      String
+  condition   String
+  price       Int
+  images      String[] // Array of image URLs
+  description String
+  location    String
+  city        String
+  state       String
+  status      String   @default("active") // active, pending, sold
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Link to user
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
