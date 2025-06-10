@@ -47,6 +47,8 @@ model User {
   password              String?   // For email/password auth
   resetToken            String?   // Password reset token
   resetTokenExpiry      DateTime? // Password reset token expiry
+  location              String?   // User location
+  phone                 String?   // User phone number
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   
