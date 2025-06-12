@@ -1,0 +1,41 @@
+{
+    // Enable format on save
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    // Use built-in formatters
+    "editor.defaultFormatter": null,
+    // Language-specific formatters
+    "[javascript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "[javascriptreact]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    // ESLint settings
+    "eslint.enable": true,
+    "eslint.format.enable": true,
+    "eslint.codeAction.showDocumentation": {
+        "enable": true
+    },
+    // Auto-fix ESLint errors on save
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit",
+        "source.organizeImports": "explicit"
+    },
+    // File associations
+    "files.associations": {
+        "*.json": "jsonc"
+    },
+    // Prettier settings (these will use your project's prettier config)
+    "prettier.requireConfig": true,
+    "prettier.useEditorConfig": false
+}
