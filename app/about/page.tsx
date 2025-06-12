@@ -109,7 +109,7 @@ export default function About() {
             </p>
             <div className="flex justify-center">
               <a
-                href="mailto:hello@boardsource.com"
+                href="mailto:hello@brdsrc.com"
                 className="bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
               >
                 📧 hello@brdsrc.com
