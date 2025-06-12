@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Surfboard } from '@/app/data/surfboards';
 import Header from '@/app/components/layout/Header';
 import Footer from '@/app/components/layout/Footer';
@@ -109,24 +110,79 @@ export default function BoardDetailPage({ params }: BoardDetailPageProps) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Image Section */}
             <div className="p-8">
-              <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
-                <div className="text-center text-gray-400">
-                  <svg
-                    className="mx-auto h-24 w-24 mb-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1}
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <p className="text-lg">High-resolution images coming soon</p>
+              {board.images && board.images.length > 0 ? (
+                <div className="space-y-4">
+                  {/* Main Image */}
+                  <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden relative">
+                    {board.images[0].startsWith('data:') ? (
+                      // Use regular img tag for base64 data URLs (Next.js Image doesn't support data URLs)
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={board.images[0]}
+                        alt={board.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      // Use Next.js Image for regular URLs
+                      <Image
+                        src={board.images[0]}
+                        alt={board.title}
+                        fill
+                        className="object-cover"
+                      />
+                    )}
+                  </div>
+
+                  {/* Thumbnail Grid (if more than 1 image) */}
+                  {board.images.length > 1 && (
+                    <div className="grid grid-cols-4 gap-2">
+                      {board.images.slice(1, 5).map((image, index) => (
+                        <div
+                          key={index}
+                          className="aspect-square bg-gray-100 rounded-md overflow-hidden relative"
+                        >
+                          {image.startsWith('data:') ? (
+                            // Use regular img tag for base64 data URLs (Next.js Image doesn't support data URLs)
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={image}
+                              alt={`${board.title} - Image ${index + 2}`}
+                              className="w-full h-full object-cover cursor-pointer hover:opacity-75 transition-opacity"
+                            />
+                          ) : (
+                            // Use Next.js Image for regular URLs
+                            <Image
+                              src={image}
+                              alt={`${board.title} - Image ${index + 2}`}
+                              fill
+                              className="object-cover cursor-pointer hover:opacity-75 transition-opacity"
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
+              ) : (
+                <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+                  <div className="text-center text-gray-400">
+                    <svg
+                      className="mx-auto h-24 w-24 mb-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <p className="text-lg">No photos available</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Details Section */}

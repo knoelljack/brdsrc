@@ -1,5 +1,6 @@
 import { Surfboard } from '@/app/data/surfboards';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getConditionStyles } from '@/app/types/filters';
 import { isBoardNew } from '@/app/utils/dateUtils';
 
@@ -10,24 +11,44 @@ interface SurfboardCardProps {
 export default function SurfboardCard({ board }: SurfboardCardProps) {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100 h-full flex flex-col">
-      {/* Placeholder Image */}
-      <div className="h-48 bg-gray-100 flex items-center justify-center flex-shrink-0">
-        <div className="text-center text-gray-400">
-          <svg
-            className="mx-auto h-12 w-12 mb-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1}
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+      {/* Board Image */}
+      <div className="h-48 bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden relative">
+        {board.images && board.images.length > 0 ? (
+          board.images[0].startsWith('data:') ? (
+            // Use regular img tag for base64 data URLs (Next.js Image doesn't support data URLs)
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={board.images[0]}
+              alt={board.title}
+              className="w-full h-full object-cover"
             />
-          </svg>
-          <p className="text-xs">Image placeholder</p>
-        </div>
+          ) : (
+            // Use Next.js Image for regular URLs
+            <Image
+              src={board.images[0]}
+              alt={board.title}
+              fill
+              className="object-cover"
+            />
+          )
+        ) : (
+          <div className="text-center text-gray-400">
+            <svg
+              className="mx-auto h-12 w-12 mb-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+            <p className="text-xs">No photos</p>
+          </div>
+        )}
       </div>
 
       {/* Card Content */}

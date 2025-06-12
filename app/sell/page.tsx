@@ -14,6 +14,11 @@ import {
   ContactInfo,
   useListingForm,
 } from '../components/listings';
+import dynamic from 'next/dynamic';
+
+const ImageUpload = dynamic(() => import('../components/ui/ImageUpload'), {
+  ssr: false,
+});
 
 export default function SellPage() {
   const { data: session, status } = useSession();
@@ -30,6 +35,9 @@ export default function SellPage() {
     contactEmail: session?.user?.email || '',
     contactPhone: '',
   });
+
+  // Image upload state
+  const [images, setImages] = useState<string[]>([]);
 
   const handleContactChange = (name: string, value: string) => {
     setContactInfo(prev => ({
@@ -53,12 +61,23 @@ export default function SellPage() {
       return;
     }
 
+    if (images.length === 0) {
+      if (
+        !confirm(
+          'No photos uploaded. Listings with photos get more views. Continue anyway?'
+        )
+      ) {
+        return;
+      }
+    }
+
     try {
       setIsSubmitting(true);
 
       const surfboardData = {
         ...formData,
         ...contactInfo,
+        images: images,
       };
 
       const response = await fetch('/api/surfboards', {
@@ -209,32 +228,11 @@ export default function SellPage() {
                 mode="create"
               />
 
-              {/* Photos */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Photos
-                </h3>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                  <svg
-                    className="mx-auto h-12 w-12 text-gray-400 mb-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1}
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <p className="text-gray-600 mb-2">Photo upload coming soon</p>
-                  <p className="text-sm text-gray-500">
-                    We&apos;re working on photo upload functionality. For now,
-                    you can describe your board in detail above.
-                  </p>
-                </div>
-              </div>
+              <ImageUpload
+                onImagesChange={setImages}
+                maxImages={5}
+                maxSizeBytes={5 * 1024 * 1024} // 5MB
+              />
 
               <ContactInfo data={contactInfo} onChange={handleContactChange} />
 
@@ -307,10 +305,13 @@ export default function SellPage() {
                 </ul>
               </div>
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">Listing Tips</h4>
+                <h4 className="font-medium text-gray-900 mb-2">
+                  Photo & Listing Tips
+                </h4>
                 <ul className="text-sm text-gray-600 space-y-1">
+                  <li>• Upload photos from multiple angles</li>
+                  <li>• Show any damage or wear clearly</li>
                   <li>• Write a detailed, honest description</li>
-                  <li>• Mention any dings, repairs, or wear</li>
                   <li>• Include dimensions and volume if known</li>
                   <li>• Respond promptly to inquiries</li>
                 </ul>

@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
       description,
       city,
       state,
+      images,
       // contactName, contactEmail, contactPhone - we'll store these later if needed
     } = body;
 
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
         location,
         city: city.trim(),
         state: state.trim(),
-        images: [], // Empty for now, will add photo functionality later
+        images: images || [], // Store the uploaded images
         status: 'active',
         userId: user.id,
       },

@@ -3,7 +3,6 @@
 import { useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 
@@ -14,13 +13,13 @@ interface UserListing {
   length: string;
   condition: string;
   price: number;
-  images: string[];
   description: string;
   location: string;
   city: string;
   state: string;
   createdAt: string;
   status: 'active' | 'sold' | 'pending';
+  hasImages: boolean;
 }
 
 export default function MyListingsPage() {
@@ -208,13 +207,27 @@ export default function MyListingsPage() {
                     >
                       {/* Image */}
                       <div className="aspect-video bg-gray-100 relative">
-                        {listing.images && listing.images.length > 0 ? (
-                          <Image
-                            src={listing.images[0]}
-                            alt={listing.title}
-                            fill
-                            className="object-cover"
-                          />
+                        {listing.hasImages ? (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <div className="text-center">
+                              <svg
+                                className="w-12 h-12 text-gray-400 mx-auto mb-2"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={1}
+                                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                />
+                              </svg>
+                              <p className="text-xs text-gray-500">
+                                Has Images
+                              </p>
+                            </div>
+                          </div>
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
                             <svg
@@ -227,7 +240,7 @@ export default function MyListingsPage() {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 strokeWidth={1}
-                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"
                               />
                             </svg>
                           </div>
