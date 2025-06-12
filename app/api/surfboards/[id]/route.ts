@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/lib/auth-config';
 import { prisma } from '@/app/lib/prisma';
+import { del } from '@vercel/blob';
 
 interface RouteParams {
   params: Promise<{
@@ -32,7 +33,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     // Check if the surfboard exists and belongs to the user
     const surfboard = await prisma.surfboard.findUnique({
       where: { id },
-      select: { id: true, userId: true, title: true },
+      select: { id: true, userId: true, title: true, images: true },
     });
 
     if (!surfboard) {
@@ -50,13 +51,24 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // First clear the images to avoid size limit issues, then delete
-    await prisma.surfboard.update({
-      where: { id },
-      data: { images: [] },
-    });
+    // Delete image blobs from Vercel Blob storage
+    if (surfboard.images && Array.isArray(surfboard.images)) {
+      for (const imageUrl of surfboard.images) {
+        try {
+          if (
+            typeof imageUrl === 'string' &&
+            imageUrl.includes('blob.vercel-storage.com')
+          ) {
+            await del(imageUrl);
+          }
+        } catch (blobError) {
+          console.error('Error deleting blob:', imageUrl, blobError);
+          // Continue with deletion even if blob deletion fails
+        }
+      }
+    }
 
-    // Now delete the surfboard (without large image data)
+    // Delete the surfboard from database
     await prisma.surfboard.delete({
       where: { id },
     });

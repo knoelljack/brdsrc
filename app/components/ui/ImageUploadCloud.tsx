@@ -4,35 +4,28 @@ import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Image from 'next/image';
 
-interface ImageUploadProps {
-  onImagesChange: (images: string[]) => void;
+interface ImageUploadCloudProps {
+  onImagesChange: (imageUrls: string[]) => void;
   maxImages?: number;
   maxSizeBytes?: number;
   className?: string;
+  initialImages?: string[];
 }
 
-export default function ImageUpload({
+export default function ImageUploadCloud({
   onImagesChange,
   maxImages = 5,
   maxSizeBytes = 5 * 1024 * 1024, // 5MB
   className = '',
-}: ImageUploadProps) {
-  const [images, setImages] = useState<string[]>([]);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [processingStatus, setProcessingStatus] = useState<string>('');
-
-  const convertFileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  };
+  initialImages = [],
+}: ImageUploadCloudProps) {
+  const [images, setImages] = useState<string[]>(initialImages);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<string>('');
 
   const convertHeicToJpeg = async (file: File): Promise<File> => {
     try {
-      setProcessingStatus(`Converting ${file.name} to JPEG...`);
+      setUploadProgress(`Converting ${file.name} to JPEG...`);
 
       // Dynamic import to avoid SSR issues
       const { default: heic2any } = await import('heic2any');
@@ -49,19 +42,42 @@ export default function ImageUpload({
     }
   };
 
+  const uploadFileToCloud = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to upload image');
+    }
+
+    const data = await response.json();
+    return data.url;
+  };
+
   const processFiles = async (acceptedFiles: File[]) => {
     if (images.length + acceptedFiles.length > maxImages) {
       alert(`You can only upload up to ${maxImages} images`);
       return;
     }
 
-    setIsProcessing(true);
-    setProcessingStatus('Processing images...');
+    setIsUploading(true);
+    setUploadProgress('Processing images...');
 
     try {
-      const processedImages: string[] = [];
+      const uploadedUrls: string[] = [];
 
-      for (const file of acceptedFiles) {
+      for (let i = 0; i < acceptedFiles.length; i++) {
+        const file = acceptedFiles[i];
+        setUploadProgress(
+          `Processing image ${i + 1} of ${acceptedFiles.length}...`
+        );
+
         if (file.size > maxSizeBytes) {
           alert(
             `${file.name} is too large. Maximum size is ${Math.round(maxSizeBytes / 1024 / 1024)}MB`
@@ -71,6 +87,7 @@ export default function ImageUpload({
 
         let processedFile = file;
 
+        // Convert HEIC files if needed
         if (
           file.type === 'image/heic' ||
           file.name.toLowerCase().endsWith('.heic') ||
@@ -88,19 +105,30 @@ export default function ImageUpload({
           }
         }
 
-        const base64 = await convertFileToBase64(processedFile);
-        processedImages.push(base64);
+        // Upload to cloud storage
+        try {
+          setUploadProgress(`Uploading ${processedFile.name}...`);
+          const imageUrl = await uploadFileToCloud(processedFile);
+          uploadedUrls.push(imageUrl);
+        } catch (error) {
+          console.error('Upload failed:', error);
+          alert(
+            `Failed to upload ${processedFile.name}: ${error instanceof Error ? error.message : 'Unknown error'}`
+          );
+        }
       }
 
-      const newImages = [...images, ...processedImages];
-      setImages(newImages);
-      onImagesChange(newImages);
+      if (uploadedUrls.length > 0) {
+        const newImages = [...images, ...uploadedUrls];
+        setImages(newImages);
+        onImagesChange(newImages);
+      }
     } catch (error) {
       console.error('Error processing files:', error);
       alert('Error processing images. Please try again.');
     } finally {
-      setIsProcessing(false);
-      setProcessingStatus('');
+      setIsUploading(false);
+      setUploadProgress('');
     }
   };
 
@@ -123,7 +151,7 @@ export default function ImageUpload({
       'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp', '.heic', '.heif'],
     },
     maxFiles: maxImages,
-    disabled: isProcessing || images.length >= maxImages,
+    disabled: isUploading || images.length >= maxImages,
   });
 
   return (
@@ -131,19 +159,21 @@ export default function ImageUpload({
       <h3 className="text-lg font-semibold text-gray-900 mb-4">
         Upload Photos
       </h3>
+
       <div
         {...getRootProps()}
         className={`
-                    border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-                    ${isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}
-                    ${isProcessing || images.length >= maxImages ? 'opacity-50 cursor-not-allowed' : ''}
-                `}
+          border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
+          ${isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}
+          ${isUploading || images.length >= maxImages ? 'opacity-50 cursor-not-allowed' : ''}
+        `}
       >
         <input {...getInputProps()} />
-        {isProcessing ? (
+
+        {isUploading ? (
           <div>
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
-            <p className="text-gray-600">{processingStatus}</p>
+            <p className="text-gray-600">{uploadProgress}</p>
           </div>
         ) : (
           <div>
@@ -173,24 +203,25 @@ export default function ImageUpload({
                   {Math.round(maxSizeBytes / 1024 / 1024)}MB each
                 </p>
                 <p className="text-xs text-gray-400 mt-1">
-                  For best results, convert HEIC photos to JPEG before uploading
+                  Images will be optimized and stored securely in the cloud
                 </p>
               </div>
             )}
           </div>
         )}
       </div>
+
       {images.length > 0 && (
         <div className="mt-6">
           <h4 className="text-sm font-medium text-gray-900 mb-3">
             Uploaded Images ({images.length}/{maxImages})
           </h4>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {images.map((image, index) => (
+            {images.map((imageUrl, index) => (
               <div key={index} className="relative group">
                 <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                   <Image
-                    src={image}
+                    src={imageUrl}
                     alt={`Upload ${index + 1}`}
                     fill
                     className="object-cover"
@@ -207,6 +238,7 @@ export default function ImageUpload({
           </div>
         </div>
       )}
+
       <div className="mt-4 text-sm text-gray-600">
         <p className="font-medium mb-2">Photo Tips:</p>
         <ul className="space-y-1 text-xs">

@@ -16,9 +16,12 @@ import {
 } from '../components/listings';
 import dynamic from 'next/dynamic';
 
-const ImageUpload = dynamic(() => import('../components/ui/ImageUpload'), {
-  ssr: false,
-});
+const ImageUploadCloud = dynamic(
+  () => import('../components/ui/ImageUploadCloud'),
+  {
+    ssr: false,
+  }
+);
 
 export default function SellPage() {
   const { data: session, status } = useSession();
@@ -228,7 +231,7 @@ export default function SellPage() {
                 mode="create"
               />
 
-              <ImageUpload
+              <ImageUploadCloud
                 onImagesChange={setImages}
                 maxImages={5}
                 maxSizeBytes={5 * 1024 * 1024} // 5MB
