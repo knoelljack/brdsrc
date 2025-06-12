@@ -5,11 +5,11 @@ import { useDropzone } from 'react-dropzone';
 import Image from 'next/image';
 
 interface ImageUploadCloudProps {
-  onImagesChange: (imageUrls: string[]) => void;
+  onImagesChange: (images: File[]) => void;
   maxImages?: number;
   maxSizeBytes?: number;
   className?: string;
-  initialImages?: string[];
+  initialImages?: File[];
 }
 
 export default function ImageUploadCloud({
@@ -19,117 +19,52 @@ export default function ImageUploadCloud({
   className = '',
   initialImages = [],
 }: ImageUploadCloudProps) {
-  const [images, setImages] = useState<string[]>(initialImages);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<string>('');
+  const [images, setImages] = useState<File[]>(initialImages);
+  const [previews, setPreviews] = useState<string[]>([]);
 
-  const convertHeicToJpeg = async (file: File): Promise<File> => {
-    try {
-      setUploadProgress(`Converting ${file.name} to JPEG...`);
-
-      // Dynamic import to avoid SSR issues
-      const { default: heic2any } = await import('heic2any');
-      const result = await heic2any({ blob: file });
-      const convertedBlob = Array.isArray(result) ? result[0] : result;
-      return new File([convertedBlob], file.name.replace(/\.heic$/i, '.jpg'), {
-        type: 'image/jpeg',
-      });
-    } catch (error) {
-      console.error('HEIC conversion failed:', error);
-      throw new Error(
-        `Failed to convert ${file.name}. Please convert to JPEG manually and try again.`
-      );
-    }
-  };
-
-  const uploadFileToCloud = async (file: File): Promise<string> => {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const response = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
+  // Generate previews when images change
+  React.useEffect(() => {
+    const readers: FileReader[] = [];
+    const newPreviews: string[] = [];
+    images.forEach((file, idx) => {
+      const reader = new FileReader();
+      readers.push(reader);
+      reader.onload = e => {
+        if (typeof e.target?.result === 'string') {
+          newPreviews[idx] = e.target.result;
+          // Only update previews when all are loaded
+          if (
+            newPreviews.length === images.length &&
+            !newPreviews.some(p => p === undefined)
+          ) {
+            setPreviews([...newPreviews]);
+          }
+        }
+      };
+      reader.readAsDataURL(file);
     });
+    if (images.length === 0) setPreviews([]);
+    return () => readers.forEach(r => r.abort());
+  }, [images]);
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to upload image');
-    }
-
-    const data = await response.json();
-    return data.url;
-  };
-
-  const processFiles = async (acceptedFiles: File[]) => {
+  const processFiles = (acceptedFiles: File[]) => {
     if (images.length + acceptedFiles.length > maxImages) {
       alert(`You can only upload up to ${maxImages} images`);
       return;
     }
-
-    setIsUploading(true);
-    setUploadProgress('Processing images...');
-
-    try {
-      const uploadedUrls: string[] = [];
-
-      for (let i = 0; i < acceptedFiles.length; i++) {
-        const file = acceptedFiles[i];
-        setUploadProgress(
-          `Processing image ${i + 1} of ${acceptedFiles.length}...`
+    // Filter out files that are too large
+    const validFiles = acceptedFiles.filter(file => {
+      if (file.size > maxSizeBytes) {
+        alert(
+          `${file.name} is too large. Maximum size is ${Math.round(maxSizeBytes / 1024 / 1024)}MB`
         );
-
-        if (file.size > maxSizeBytes) {
-          alert(
-            `${file.name} is too large. Maximum size is ${Math.round(maxSizeBytes / 1024 / 1024)}MB`
-          );
-          continue;
-        }
-
-        let processedFile = file;
-
-        // Convert HEIC files if needed
-        if (
-          file.type === 'image/heic' ||
-          file.name.toLowerCase().endsWith('.heic') ||
-          file.name.toLowerCase().endsWith('.heif')
-        ) {
-          try {
-            processedFile = await convertHeicToJpeg(file);
-          } catch (error) {
-            const errorMessage =
-              error instanceof Error
-                ? error.message
-                : 'Failed to convert HEIC file';
-            alert(`${errorMessage}`);
-            continue;
-          }
-        }
-
-        // Upload to cloud storage
-        try {
-          setUploadProgress(`Uploading ${processedFile.name}...`);
-          const imageUrl = await uploadFileToCloud(processedFile);
-          uploadedUrls.push(imageUrl);
-        } catch (error) {
-          console.error('Upload failed:', error);
-          alert(
-            `Failed to upload ${processedFile.name}: ${error instanceof Error ? error.message : 'Unknown error'}`
-          );
-        }
+        return false;
       }
-
-      if (uploadedUrls.length > 0) {
-        const newImages = [...images, ...uploadedUrls];
-        setImages(newImages);
-        onImagesChange(newImages);
-      }
-    } catch (error) {
-      console.error('Error processing files:', error);
-      alert('Error processing images. Please try again.');
-    } finally {
-      setIsUploading(false);
-      setUploadProgress('');
-    }
+      return true;
+    });
+    const newImages = [...images, ...validFiles];
+    setImages(newImages);
+    onImagesChange(newImages);
   };
 
   const removeImage = (index: number) => {
@@ -151,7 +86,7 @@ export default function ImageUploadCloud({
       'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp', '.heic', '.heif'],
     },
     maxFiles: maxImages,
-    disabled: isUploading || images.length >= maxImages,
+    disabled: images.length >= maxImages,
   });
 
   return (
@@ -159,69 +94,59 @@ export default function ImageUploadCloud({
       <h3 className="text-lg font-semibold text-gray-900 mb-4">
         Upload Photos
       </h3>
-
       <div
         {...getRootProps()}
         className={`
           border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
           ${isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}
-          ${isUploading || images.length >= maxImages ? 'opacity-50 cursor-not-allowed' : ''}
+          ${images.length >= maxImages ? 'opacity-50 cursor-not-allowed' : ''}
         `}
       >
         <input {...getInputProps()} />
-
-        {isUploading ? (
-          <div>
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
-            <p className="text-gray-600">{uploadProgress}</p>
-          </div>
-        ) : (
-          <div>
-            <svg
-              className="mx-auto h-12 w-12 text-gray-400 mb-4"
-              stroke="currentColor"
-              fill="none"
-              viewBox="0 0 48 48"
-            >
-              <path
-                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            {isDragActive ? (
-              <p className="text-gray-600">Drop the images here...</p>
-            ) : (
-              <div>
-                <p className="text-gray-600 mb-2">
-                  <span className="font-medium">Click to upload</span> or drag
-                  and drop
-                </p>
-                <p className="text-sm text-gray-500">
-                  Images only, up to {maxImages} files, max{' '}
-                  {Math.round(maxSizeBytes / 1024 / 1024)}MB each
-                </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  Images will be optimized and stored securely in the cloud
-                </p>
-              </div>
-            )}
-          </div>
-        )}
+        <div>
+          <svg
+            className="mx-auto h-12 w-12 text-gray-400 mb-4"
+            stroke="currentColor"
+            fill="none"
+            viewBox="0 0 48 48"
+          >
+            <path
+              d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          {isDragActive ? (
+            <p className="text-gray-600">Drop the images here...</p>
+          ) : (
+            <div>
+              <p className="text-gray-600 mb-2">
+                <span className="font-medium">Click to upload</span> or drag and
+                drop
+              </p>
+              <p className="text-sm text-gray-500">
+                Images only, up to {maxImages} files, max{' '}
+                {Math.round(maxSizeBytes / 1024 / 1024)}MB each
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                Images will be optimized and stored securely in the cloud
+              </p>
+            </div>
+          )}
+        </div>
       </div>
-
-      {images.length > 0 && (
+      {previews.length > 0 && (
         <div className="mt-6">
           <h4 className="text-sm font-medium text-gray-900 mb-3">
-            Uploaded Images ({images.length}/{maxImages})
+            Selected Images ({images.length}/{maxImages})
           </h4>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {images.map((imageUrl, index) => (
+            {previews.map((preview, index) => (
               <div key={index} className="relative group">
                 <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                   <Image
-                    src={imageUrl}
+                    src={preview}
                     alt={`Upload ${index + 1}`}
                     fill
                     className="object-cover"
@@ -238,7 +163,6 @@ export default function ImageUploadCloud({
           </div>
         </div>
       )}
-
       <div className="mt-4 text-sm text-gray-600">
         <p className="font-medium mb-2">Photo Tips:</p>
         <ul className="space-y-1 text-xs">
