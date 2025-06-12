@@ -1,5 +1,5 @@
-import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
+import Header from '../components/layout/Header';
 
 export default function About() {
   return (
@@ -112,7 +112,7 @@ export default function About() {
                 href="mailto:hello@boardsource.com"
                 className="bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
               >
-                📧 hello@boardsource.com
+                📧 hello@brdsrc.com
               </a>
             </div>
           </div>
