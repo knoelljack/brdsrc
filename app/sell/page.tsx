@@ -40,7 +40,7 @@ export default function SellPage() {
   });
 
   // Image upload state
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<File[]>([]);
 
   const handleContactChange = (name: string, value: string) => {
     setContactInfo(prev => ({
@@ -77,10 +77,29 @@ export default function SellPage() {
     try {
       setIsSubmitting(true);
 
+      // Upload images to blob storage and get URLs
+      const imageUrls: string[] = [];
+      if (images.length > 0) {
+        for (const file of images) {
+          const formData = new FormData();
+          formData.append('file', file);
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to upload image');
+          }
+          const data = await response.json();
+          imageUrls.push(data.url);
+        }
+      }
+
       const surfboardData = {
         ...formData,
         ...contactInfo,
-        images: images,
+        images: imageUrls,
       };
 
       const response = await fetch('/api/surfboards', {
