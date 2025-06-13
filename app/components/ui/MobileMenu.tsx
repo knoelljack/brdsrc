@@ -1,12 +1,98 @@
 'use client';
 
-import { useEffect } from 'react';
+import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
-import AuthButton from './AuthButton';
+import { useEffect } from 'react';
 
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
+}
+
+interface MobileAuthSectionProps {
+  onLinkClick: () => void;
+}
+
+function MobileAuthSection({ onLinkClick }: MobileAuthSectionProps) {
+  const { data: session, status } = useSession();
+
+  if (status === 'loading') {
+    return (
+      <div className="space-y-3">
+        <div className="w-full h-12 bg-gray-200 rounded-lg animate-pulse"></div>
+      </div>
+    );
+  }
+
+  if (session) {
+    return (
+      <div className="space-y-3">
+        {/* User Info */}
+        <div className="px-6 py-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white font-medium">
+              {session.user?.name?.charAt(0) ||
+                session.user?.email?.charAt(0) ||
+                'U'}
+            </div>
+            <div>
+              <p className="font-medium text-gray-900">
+                {session.user?.name || 'User'}
+              </p>
+              <p className="text-sm text-gray-500">{session.user?.email}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Auth Links */}
+        <Link
+          href="/profile"
+          onClick={onLinkClick}
+          className="block text-gray-700 hover:text-gray-900 transition-colors font-medium text-xl py-4 px-6 rounded-lg hover:bg-gray-50"
+        >
+          My Profile
+        </Link>
+
+        <Link
+          href="/my-listings"
+          onClick={onLinkClick}
+          className="block text-gray-700 hover:text-gray-900 transition-colors font-medium text-xl py-4 px-6 rounded-lg hover:bg-gray-50"
+        >
+          My Listings
+        </Link>
+
+        <button
+          onClick={() => {
+            onLinkClick();
+            signOut({ callbackUrl: '/' });
+          }}
+          className="w-full text-left text-gray-700 hover:text-gray-900 transition-colors font-medium text-xl py-4 px-6 rounded-lg hover:bg-gray-50"
+        >
+          Sign Out
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <Link
+        href="/auth/signin"
+        onClick={onLinkClick}
+        className="block bg-gray-900 text-white text-center font-medium text-xl py-4 px-6 rounded-lg hover:bg-gray-800 transition-colors"
+      >
+        Sign In
+      </Link>
+
+      <Link
+        href="/auth/register"
+        onClick={onLinkClick}
+        className="block border-2 border-gray-900 text-gray-900 text-center font-medium text-xl py-4 px-6 rounded-lg hover:bg-gray-50 transition-colors"
+      >
+        Create Account
+      </Link>
+    </div>
+  );
 }
 
 export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
@@ -95,9 +181,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           </Link>
 
           <div className="pt-6 border-t border-gray-200">
-            <div onClick={handleLinkClick}>
-              <AuthButton />
-            </div>
+            <MobileAuthSection onLinkClick={handleLinkClick} />
           </div>
         </nav>
       </div>
