@@ -32,6 +32,8 @@ export async function POST(request: NextRequest) {
       city,
       state,
       images,
+      latitude,
+      longitude,
       // contactName, contactEmail, contactPhone - we'll store these later if needed
     } = body;
 
@@ -59,6 +61,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate coordinates if provided
+    if (latitude !== null && longitude !== null) {
+      if (
+        typeof latitude !== 'number' ||
+        typeof longitude !== 'number' ||
+        latitude < -90 ||
+        latitude > 90 ||
+        longitude < -180 ||
+        longitude > 180
+      ) {
+        return NextResponse.json(
+          { error: 'Invalid coordinates provided' },
+          { status: 400 }
+        );
+      }
+    }
+
     // Create location string
     const location = `${city}, ${state}`;
 
@@ -74,6 +93,8 @@ export async function POST(request: NextRequest) {
         location,
         city: city.trim(),
         state: state.trim(),
+        latitude: latitude || null,
+        longitude: longitude || null,
         images: images || [], // Store the uploaded images
         status: 'active',
         userId: user.id,

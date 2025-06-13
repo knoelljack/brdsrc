@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { getSurfboardsNearLocation, Surfboard } from '@/app/data/surfboards';
-import SurfboardCard from './SurfboardCard';
+import { useEffect, useState } from 'react';
 import SelectWithIcon from './SelectWithIcon';
+import SurfboardCard from './SurfboardCard';
 
 interface NearMeSectionProps {
   defaultRadius?: number;
@@ -24,7 +24,7 @@ export default function NearMeSection({
   const [hasRequested, setHasRequested] = useState(false);
 
   const selectClassName =
-    'custom-select appearance-none bg-white px-3 py-2 pr-8 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 hover:border-gray-400 transition-colors cursor-pointer w-full';
+    'custom-select appearance-none bg-white px-3 py-2 pr-8 border border-gray-300 rounded-lg text-sm font-medium text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 hover:border-gray-400 transition-colors cursor-pointer w-full';
 
   const requestLocation = () => {
     if (!navigator.geolocation) {

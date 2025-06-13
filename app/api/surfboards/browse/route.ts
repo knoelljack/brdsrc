@@ -1,25 +1,28 @@
-import { NextResponse } from 'next/server';
 import { prisma } from '@/app/lib/prisma';
+import { NextResponse } from 'next/server';
 
+// Define the type for surfboard with user data
 type SurfboardWithUser = {
   id: string;
   title: string;
   brand: string;
   length: string;
-  price: number; // Changed to number to match schema
   condition: string;
+  price: number;
+  images: string[];
+  description: string;
   location: string;
   city: string;
   state: string;
-  description: string;
-  images: string[];
-  userId: string;
+  latitude: number | null;
+  longitude: number | null;
   status: string;
   createdAt: Date;
   updatedAt: Date;
+  userId: string;
   user: {
     name: string | null;
-    email: string | null;
+    email: string;
   };
 };
 
@@ -54,6 +57,13 @@ export async function GET() {
         location: board.location,
         city: board.city,
         state: board.state,
+        coordinates:
+          board.latitude && board.longitude
+            ? {
+                lat: board.latitude,
+                lng: board.longitude,
+              }
+            : undefined,
         description: board.description,
         images: board.images,
         userId: board.userId,

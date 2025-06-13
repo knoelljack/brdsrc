@@ -1,7 +1,7 @@
 import {
-  ListingFormProps,
   LISTING_CONDITION_OPTIONS,
   LISTING_STATUS_OPTIONS,
+  ListingFormProps,
 } from '../types/listing';
 
 interface BoardConditionStatusProps extends ListingFormProps {
@@ -28,7 +28,7 @@ export default function BoardConditionStatus({
   };
 
   const selectClassName =
-    'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500';
+    'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 text-gray-900';
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
