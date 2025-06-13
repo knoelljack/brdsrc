@@ -1,11 +1,11 @@
-import { getUniqueStates, getLocationsByState } from '@/app/data/surfboards';
-import SelectWithIcon from './SelectWithIcon';
+import { getLocationsByState, getUniqueStates } from '@/app/data/surfboards';
 import {
   CONDITION_OPTIONS,
   LENGTH_OPTIONS,
   PRICE_OPTIONS,
   SORT_OPTIONS,
 } from '@/app/types/filters';
+import SelectWithIcon from './SelectWithIcon';
 
 interface FilterBarProps {
   locationFilter: string;
@@ -40,7 +40,7 @@ export default function FilterBar({
   const locationsByState = getLocationsByState();
 
   const selectClassName =
-    'custom-select appearance-none bg-white px-4 py-2.5 pr-10 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 hover:border-gray-400 transition-colors cursor-pointer w-full min-w-0';
+    'custom-select appearance-none bg-white px-4 py-2.5 pr-10 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 hover:border-gray-400 transition-colors cursor-pointer w-full';
 
   return (
     <div className="mb-8">
@@ -62,7 +62,7 @@ export default function FilterBar({
           )}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:flex gap-3">
-          <div className="min-w-[140px]">
+          <div className="min-w-[160px]">
             <SelectWithIcon
               className={selectClassName}
               value={locationFilter}
@@ -84,7 +84,7 @@ export default function FilterBar({
               ))}
             </SelectWithIcon>
           </div>
-          <div className="min-w-[120px]">
+          <div className="min-w-[140px]">
             <SelectWithIcon
               className={selectClassName}
               value={lengthFilter}
@@ -97,7 +97,7 @@ export default function FilterBar({
               ))}
             </SelectWithIcon>
           </div>
-          <div className="min-w-[110px]">
+          <div className="min-w-[130px]">
             <SelectWithIcon
               className={selectClassName}
               value={priceFilter}
@@ -111,7 +111,7 @@ export default function FilterBar({
             </SelectWithIcon>
           </div>
           {onConditionChange && (
-            <div className="min-w-[130px]">
+            <div className="min-w-[150px]">
               <SelectWithIcon
                 className={selectClassName}
                 value={conditionFilter || ''}
@@ -126,7 +126,7 @@ export default function FilterBar({
               </SelectWithIcon>
             </div>
           )}
-          <div className="min-w-[160px]">
+          <div className="min-w-[180px]">
             <SelectWithIcon
               className={selectClassName}
               value={sortBy}

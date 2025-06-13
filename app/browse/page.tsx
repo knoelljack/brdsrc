@@ -269,10 +269,11 @@ export default function Browse() {
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors cursor-pointer ${selectedCategory === category.id
-                      ? 'bg-gray-900 text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                      }`}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors cursor-pointer ${
+                      selectedCategory === category.id
+                        ? 'bg-gray-900 text-white'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
                   >
                     <span>{category.name}</span>
                     <span className="text-xs opacity-75">
@@ -289,19 +290,21 @@ export default function Browse() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${viewMode === 'grid'
-                    ? 'bg-gray-900 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
+                    viewMode === 'grid'
+                      ? 'bg-gray-900 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                 >
                   Grid
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${viewMode === 'list'
-                    ? 'bg-gray-900 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
+                    viewMode === 'list'
+                      ? 'bg-gray-900 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                 >
                   List
                 </button>
@@ -419,7 +422,8 @@ export default function Browse() {
                                   </div>
 
                                   <p className="text-gray-600 mb-2">
-                                    {board.brand} • {board.length} • {board.condition}
+                                    {board.brand} • {board.length} •{' '}
+                                    {board.condition}
                                   </p>
 
                                   <p className="text-sm text-gray-500 mb-3">
