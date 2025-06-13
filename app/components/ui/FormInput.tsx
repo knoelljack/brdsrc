@@ -10,6 +10,7 @@ interface FormInputProps {
   ) => void;
   placeholder?: string;
   required?: boolean;
+  disabled?: boolean;
   min?: string;
   rows?: number;
   className?: string; // For additional custom classes
@@ -28,13 +29,14 @@ export default function FormInput({
   onChange,
   placeholder,
   required = false,
+  disabled = false,
   min,
   rows = 4,
   className = '',
   label,
   helpText,
 }: FormInputProps) {
-  const inputClasses = `${baseInputClasses} ${className}`;
+  const inputClasses = `${baseInputClasses} ${className} ${disabled ? 'bg-gray-50 cursor-not-allowed' : ''}`;
 
   const renderInput = () => {
     if (type === 'textarea') {
@@ -46,6 +48,7 @@ export default function FormInput({
           onChange={onChange}
           placeholder={placeholder}
           required={required}
+          disabled={disabled}
           rows={rows}
           className={`${inputClasses} resize-none`}
         />
@@ -61,6 +64,7 @@ export default function FormInput({
         onChange={onChange}
         placeholder={placeholder}
         required={required}
+        disabled={disabled}
         min={min}
         className={inputClasses}
       />

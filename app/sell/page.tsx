@@ -1,20 +1,20 @@
 'use client';
 
-import { useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import Header from '../components/layout/Header';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import Footer from '../components/layout/Footer';
+import Header from '../components/layout/Header';
 import {
   BasicBoardInfo,
   BoardConditionStatus,
-  LocationInfo,
   BoardDescription,
   ContactInfo,
+  LocationInfo,
   useListingForm,
 } from '../components/listings';
-import dynamic from 'next/dynamic';
 
 const ImageUploadCloud = dynamic(
   () => import('../components/ui/ImageUploadCloud'),
@@ -27,8 +27,13 @@ export default function SellPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [coordinates, setCoordinates] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
 
-  const { formData, handleChange, validateForm } = useListingForm({
+  const { formData, handleChange, validateForm, resetForm } = useListingForm({
     mode: 'create',
   });
 
@@ -39,8 +44,18 @@ export default function SellPage() {
     contactPhone: '',
   });
 
-  // Image upload state
-  const [images, setImages] = useState<File[]>([]);
+  const handleLocationSelect = (location: {
+    address: string;
+    city: string;
+    state: string;
+    latitude: number;
+    longitude: number;
+  }) => {
+    setCoordinates({
+      latitude: location.latitude,
+      longitude: location.longitude,
+    });
+  };
 
   const handleContactChange = (name: string, value: string) => {
     setContactInfo(prev => ({
@@ -52,54 +67,47 @@ export default function SellPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isSubmitting) return;
+    if (!session?.user?.id) {
+      alert('You must be signed in to create a listing');
+      return;
+    }
 
-    // Validate both form data and contact info
     if (!validateForm()) {
+      alert('Please fill in all required fields');
       return;
     }
 
-    if (!contactInfo.contactName || !contactInfo.contactEmail) {
-      alert('Please provide contact information');
-      return;
-    }
-
-    if (images.length === 0) {
-      if (
-        !confirm(
-          'No photos uploaded. Listings with photos get more views. Continue anyway?'
-        )
-      ) {
-        return;
-      }
-    }
+    setIsSubmitting(true);
 
     try {
-      setIsSubmitting(true);
-
-      // Upload images to blob storage and get URLs
+      // Upload images using the upload API route
       const imageUrls: string[] = [];
-      if (images.length > 0) {
-        for (const file of images) {
-          const formData = new FormData();
-          formData.append('file', file);
-          const response = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
-          });
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to upload image');
-          }
-          const data = await response.json();
-          imageUrls.push(data.url);
+
+      for (const file of selectedFiles) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          const errorData = await uploadResponse.json();
+          throw new Error(errorData.error || 'Upload failed');
         }
+
+        const uploadResult = await uploadResponse.json();
+        imageUrls.push(uploadResult.url);
       }
 
-      const surfboardData = {
+      // Create the listing with coordinates
+      const listingData = {
         ...formData,
-        ...contactInfo,
         images: imageUrls,
+        userId: session.user.id,
+        latitude: coordinates?.latitude || null,
+        longitude: coordinates?.longitude || null,
       };
 
       const response = await fetch('/api/surfboards', {
@@ -107,21 +115,22 @@ export default function SellPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(surfboardData),
+        body: JSON.stringify(listingData),
       });
 
-      const result = await response.json();
-
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to create listing');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create listing');
       }
 
-      alert(
-        `Success! Your surfboard "${result.surfboard.title}" has been listed.`
-      );
-      router.push('/my-listings');
+      await response.json();
+
+      // Reset form and redirect
+      resetForm();
+      setSelectedFiles([]);
+      setCoordinates(null);
+      router.push('/profile?tab=listings');
     } catch (error) {
-      console.error('Error submitting form:', error);
       alert(
         error instanceof Error
           ? error.message
@@ -130,14 +139,6 @@ export default function SellPage() {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  // Helper function to get coordinates (you'd implement one of the approaches above)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const getCoordinatesForLocation = async (_city: string, _state: string) => {
-    // Implement your chosen approach here
-    // For now, return null to indicate no coordinates available
-    return null;
   };
 
   return (
@@ -242,19 +243,19 @@ export default function SellPage() {
                 data={formData}
                 onChange={handleChange}
                 mode="create"
+                onLocationSelect={handleLocationSelect}
               />
 
-              <BoardDescription
-                data={formData}
-                onChange={handleChange}
-                mode="create"
-              />
+              <BoardDescription data={formData} onChange={handleChange} />
 
-              <ImageUploadCloud
-                onImagesChange={setImages}
-                maxImages={5}
-                maxSizeBytes={5 * 1024 * 1024} // 5MB
-              />
+              {/* Image Upload */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+                <ImageUploadCloud
+                  onImagesChange={setSelectedFiles}
+                  maxImages={8}
+                  initialImages={selectedFiles}
+                />
+              </div>
 
               <ContactInfo data={contactInfo} onChange={handleContactChange} />
 

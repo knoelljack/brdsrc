@@ -39,21 +39,21 @@ model Session {
 }
 
 model User {
-  id                    String    @id @default(cuid())
-  name                  String?
-  email                 String    @unique
-  emailVerified         DateTime?
-  image                 String?
-  password              String?   // For email/password auth
-  resetToken            String?   // Password reset token
-  resetTokenExpiry      DateTime? // Password reset token expiry
-  location              String?   // User location
-  phone                 String?   // User phone number
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-  
-  accounts Account[]
-  sessions Session[]
+  id               String    @id @default(cuid())
+  name             String?
+  email            String    @unique
+  emailVerified    DateTime?
+  image            String?
+  password         String? // For email/password auth
+  resetToken       String? // Password reset token
+  resetTokenExpiry DateTime? // Password reset token expiry
+  location         String? // User location
+  phone            String? // User phone number
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  accounts   Account[]
+  sessions   Session[]
   surfboards Surfboard[]
 }
 
@@ -77,11 +77,13 @@ model Surfboard {
   location    String
   city        String
   state       String
+  latitude    Float? // Latitude coordinate
+  longitude   Float? // Longitude coordinate
   status      String   @default("active") // active, pending, sold
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   // Link to user
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
