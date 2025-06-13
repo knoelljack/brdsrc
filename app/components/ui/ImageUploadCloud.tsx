@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
-import { useDropzone } from 'react-dropzone';
 import Image from 'next/image';
+import React, { useCallback, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
 
 interface ImageUploadCloudProps {
   onImagesChange: (images: File[]) => void;
@@ -52,19 +52,38 @@ export default function ImageUploadCloud({
       alert(`You can only upload up to ${maxImages} images`);
       return;
     }
-    // Filter out files that are too large
+
+    // Filter out HEIC files and files that are too large
     const validFiles = acceptedFiles.filter(file => {
+      // Check file size
       if (file.size > maxSizeBytes) {
         alert(
           `${file.name} is too large. Maximum size is ${Math.round(maxSizeBytes / 1024 / 1024)}MB`
         );
         return false;
       }
+
+      // Check for HEIC files
+      const isHeicFile =
+        file.type === 'image/heic' ||
+        file.type === 'image/heif' ||
+        /\.(heic|heif)$/i.test(file.name);
+
+      if (isHeicFile) {
+        alert(
+          `${file.name} is a HEIC file. Please convert it to JPEG in your Photos app first:\n\n1. Open Photos app\n2. Select the photo\n3. Tap Share → Save to Files → Choose JPEG format\n4. Then upload the converted file here.`
+        );
+        return false;
+      }
+
       return true;
     });
-    const newImages = [...images, ...validFiles];
-    setImages(newImages);
-    onImagesChange(newImages);
+
+    if (validFiles.length > 0) {
+      const newImages = [...images, ...validFiles];
+      setImages(newImages);
+      onImagesChange(newImages);
+    }
   };
 
   const removeImage = (index: number) => {
@@ -83,7 +102,7 @@ export default function ImageUploadCloud({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp', '.heic', '.heif'],
+      'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp'],
     },
     maxFiles: maxImages,
     disabled: images.length >= maxImages,
@@ -103,6 +122,7 @@ export default function ImageUploadCloud({
         `}
       >
         <input {...getInputProps()} />
+
         <div>
           <svg
             className="mx-auto h-12 w-12 text-gray-400 mb-4"
@@ -130,7 +150,7 @@ export default function ImageUploadCloud({
                 {Math.round(maxSizeBytes / 1024 / 1024)}MB each
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                Images will be optimized and stored securely in the cloud
+                HEIC files not supported - please convert to JPEG first
               </p>
             </div>
           )}
