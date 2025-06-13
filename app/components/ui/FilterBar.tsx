@@ -62,7 +62,7 @@ export default function FilterBar({
           )}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:flex gap-3">
-          <div className="min-w-[160px]">
+          <div className="min-w-40">
             <SelectWithIcon
               className={selectClassName}
               value={locationFilter}
@@ -84,7 +84,7 @@ export default function FilterBar({
               ))}
             </SelectWithIcon>
           </div>
-          <div className="min-w-[140px]">
+          <div className="min-w-36">
             <SelectWithIcon
               className={selectClassName}
               value={lengthFilter}
@@ -97,7 +97,7 @@ export default function FilterBar({
               ))}
             </SelectWithIcon>
           </div>
-          <div className="min-w-[130px]">
+          <div className="min-w-32">
             <SelectWithIcon
               className={selectClassName}
               value={priceFilter}
@@ -111,7 +111,7 @@ export default function FilterBar({
             </SelectWithIcon>
           </div>
           {onConditionChange && (
-            <div className="min-w-[150px]">
+            <div className="min-w-40">
               <SelectWithIcon
                 className={selectClassName}
                 value={conditionFilter || ''}
@@ -126,7 +126,7 @@ export default function FilterBar({
               </SelectWithIcon>
             </div>
           )}
-          <div className="min-w-[180px]">
+          <div className="min-w-44">
             <SelectWithIcon
               className={selectClassName}
               value={sortBy}
