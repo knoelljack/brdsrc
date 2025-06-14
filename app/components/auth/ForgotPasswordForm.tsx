@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 export default function ForgotPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +28,7 @@ export default function ForgotPasswordForm() {
 
       if (response.ok) {
         setMessage(
-          'If an account with that email exists, we&apos;ve sent you a password reset link.'
+          "If an account with that email exists, we've sent you a password reset link."
         );
       } else {
         const errorData = await response.json();
@@ -48,17 +48,9 @@ export default function ForgotPasswordForm() {
         <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
           <p className="text-sm text-green-600">{message}</p>
         </div>
-        <div className="space-y-2">
-          <Link
-            href="/auth/signin"
-            className="block text-gray-600 hover:text-gray-900"
-          >
-            ← Back to sign in
-          </Link>
-          <p className="text-sm text-gray-500">
-            Didn&apos;t receive an email? Check your spam folder or try again.
-          </p>
-        </div>
+        <p className="text-sm text-gray-500">
+          Didn&apos;t receive an email? Check your spam folder or try again.
+        </p>
       </div>
     );
   }
