@@ -106,10 +106,6 @@ export async function POST(req: Request) {
       console.log('✅ Password reset email sent to:', email);
     } catch (emailError) {
       console.error('❌ Failed to send email:', emailError);
-
-      // For development, still log the reset link as fallback
-      console.log('🔐 Password Reset Link (fallback):', resetUrl);
-      console.log('📧 Send this to:', email);
     }
 
     return NextResponse.json(
