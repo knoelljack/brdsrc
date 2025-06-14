@@ -48,17 +48,9 @@ export default function ForgotPasswordForm() {
         <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
           <p className="text-sm text-green-600">{message}</p>
         </div>
-        <div className="space-y-2">
-          <Link
-            href="/auth/signin"
-            className="block text-gray-600 hover:text-gray-900"
-          >
-            ← Back to sign in
-          </Link>
-          <p className="text-sm text-gray-500">
-            Didn&apos;t receive an email? Check your spam folder or try again.
-          </p>
-        </div>
+        <p className="text-sm text-gray-500">
+          Didn&apos;t receive an email? Check your spam folder or try again.
+        </p>
       </div>
     );
   }
