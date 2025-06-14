@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 export default function ForgotPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +28,7 @@ export default function ForgotPasswordForm() {
 
       if (response.ok) {
         setMessage(
-          'If an account with that email exists, we&apos;ve sent you a password reset link.'
+          "If an account with that email exists, we've sent you a password reset link."
         );
       } else {
         const errorData = await response.json();
