@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/app/lib/prisma';
 import { surfboards as dummySurfboards } from '@/app/data/surfboards';
+import { prisma } from '@/app/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
@@ -19,6 +19,7 @@ export async function GET(
             select: {
               name: true,
               email: true,
+              phone: true,
             },
           },
         },
@@ -43,6 +44,7 @@ export async function GET(
           seller: {
             name: surfboard.user.name,
             email: surfboard.user.email,
+            phone: surfboard.user.phone,
           },
         };
 
