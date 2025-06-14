@@ -23,6 +23,7 @@ type SurfboardWithUser = {
   user: {
     name: string | null;
     email: string;
+    phone: string | null;
   };
 };
 
@@ -37,6 +38,7 @@ export async function GET() {
           select: {
             name: true,
             email: true,
+            phone: true,
           },
         },
       },
@@ -73,6 +75,7 @@ export async function GET() {
         seller: {
           name: board.user.name,
           email: board.user.email,
+          phone: board.user.phone,
         },
       })
     );
