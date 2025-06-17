@@ -285,8 +285,8 @@ export default function SellPage() {
                       <p>
                         To protect your privacy, we will only display your first
                         name on the listing details. Your email and phone number
-                        will only be shared with serious inquirers when they
-                        contact you about your board.
+                        will be shown to potential buyers so they can contact
+                        you directly about your board.
                       </p>
                     </div>
                   </div>
