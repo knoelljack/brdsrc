@@ -1,7 +1,11 @@
 'use client';
 
-import { getSurfboardsNearLocation, Surfboard } from '@/app/data/surfboards';
-import { useEffect, useState } from 'react';
+import {
+  calculateDistance,
+  surfboards as dummySurfboards,
+  Surfboard,
+} from '@/app/data/surfboards';
+import { useCallback, useEffect, useState } from 'react';
 import SelectWithIcon from './SelectWithIcon';
 import SurfboardCard from './SurfboardCard';
 
@@ -22,6 +26,78 @@ export default function NearMeSection({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const [hasRequested, setHasRequested] = useState(false);
+  const [allSurfboards, setAllSurfboards] = useState<Surfboard[]>([]);
+  const [fetchingBoards, setFetchingBoards] = useState(false);
+
+  // Fetch real surfboards from API and combine with dummy data
+  useEffect(() => {
+    const fetchSurfboards = async () => {
+      setFetchingBoards(true);
+      try {
+        const response = await fetch('/api/surfboards/browse');
+        if (response.ok) {
+          const data = await response.json();
+          const realSurfboards = data.surfboards;
+
+          // Add offset to dummy board IDs to avoid conflicts
+          const adjustedDummyBoards = dummySurfboards.map(board => ({
+            ...board,
+            id: (board.id as number) + 10000,
+          }));
+
+          // Combine real and dummy surfboards
+          const combined = [...realSurfboards, ...adjustedDummyBoards];
+          setAllSurfboards(combined);
+        } else {
+          console.error('Failed to fetch surfboards');
+          // Fall back to dummy data only
+          setAllSurfboards(dummySurfboards);
+        }
+      } catch (error) {
+        console.error('Error fetching surfboards:', error);
+        // Fall back to dummy data only
+        setAllSurfboards(dummySurfboards);
+      } finally {
+        setFetchingBoards(false);
+      }
+    };
+
+    fetchSurfboards();
+  }, []);
+
+  // Memoized function to get surfboards near location from combined dataset
+  const getSurfboardsNearLocationFromCombined = useCallback(
+    (
+      userLat: number,
+      userLng: number,
+      radiusMiles: number = 50
+    ): Surfboard[] => {
+      return allSurfboards
+        .filter(board => {
+          if (!board.coordinates) return false;
+          const distance = calculateDistance(
+            userLat,
+            userLng,
+            board.coordinates.lat,
+            board.coordinates.lng
+          );
+          return distance <= radiusMiles;
+        })
+        .map(board => ({
+          ...board,
+          distance: board.coordinates
+            ? calculateDistance(
+                userLat,
+                userLng,
+                board.coordinates.lat,
+                board.coordinates.lng
+              )
+            : undefined,
+        }))
+        .sort((a, b) => (a.distance || 0) - (b.distance || 0));
+    },
+    [allSurfboards]
+  );
 
   const selectClassName =
     'custom-select appearance-none bg-white px-3 py-2 pr-8 border border-gray-300 rounded-lg text-sm font-medium text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 hover:border-gray-400 transition-colors cursor-pointer w-full';
@@ -74,15 +150,15 @@ export default function NearMeSection({
   };
 
   useEffect(() => {
-    if (location) {
-      const boards = getSurfboardsNearLocation(
+    if (location && allSurfboards.length > 0) {
+      const boards = getSurfboardsNearLocationFromCombined(
         location.lat,
         location.lng,
         radius
       );
       setNearbyBoards(boards);
     }
-  }, [location, radius]);
+  }, [location, radius, allSurfboards, getSurfboardsNearLocationFromCombined]);
 
   if (!hasRequested) {
     return (
@@ -120,9 +196,17 @@ export default function NearMeSection({
           </p>
           <button
             onClick={requestLocation}
-            className="bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
+            disabled={fetchingBoards}
+            className="bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            📍 Find Boards Near Me
+            {fetchingBoards ? (
+              <>
+                <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Loading boards...
+              </>
+            ) : (
+              '📍 Find Boards Near Me'
+            )}
           </button>
           <p className="text-xs text-gray-500 mt-3">
             We&apos;ll only use your location to show nearby surfboards
