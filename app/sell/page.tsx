@@ -259,6 +259,40 @@ export default function SellPage() {
 
               <ContactInfo data={contactInfo} onChange={handleContactChange} />
 
+              {/* Privacy Notice */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <svg
+                      className="h-5 w-5 text-blue-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-blue-800">
+                      Privacy Notice
+                    </h3>
+                    <div className="mt-1 text-sm text-blue-700">
+                      <p>
+                        To protect your privacy, we will only display your first
+                        name on the listing details. Your email and phone number
+                        will be shown to potential buyers so they can contact
+                        you directly about your board.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Terms and Submit */}
               <div className="border-t border-gray-200 pt-8">
                 <div className="mb-6">
@@ -283,29 +317,20 @@ export default function SellPage() {
                   </label>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="flex-1 bg-gray-900 text-white py-3 px-6 rounded-lg hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Creating Listing...
-                      </>
-                    ) : (
-                      'List My Surfboard'
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={isSubmitting}
-                    className="flex-1 bg-white border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors font-medium"
-                  >
-                    Save as Draft
-                  </button>
-                </div>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-gray-900 text-white py-3 px-6 rounded-lg hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Creating Listing...
+                    </>
+                  ) : (
+                    'List My Surfboard'
+                  )}
+                </button>
               </div>
             </form>
           </div>
