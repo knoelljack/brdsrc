@@ -327,6 +327,7 @@ export default function Browse() {
               onSortChange={setSortBy}
               totalCount={filteredBoards.length}
               searchTerm={searchTerm}
+              allSurfboards={allSurfboards}
             />
 
             {/* Results */}

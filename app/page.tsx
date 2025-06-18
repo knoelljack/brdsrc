@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useMemo, useRef, useEffect } from 'react';
-import Header from './components/layout/Header';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Footer from './components/layout/Footer';
-import HeroSection from './components/ui/HeroSection';
+import Header from './components/layout/Header';
 import FilterBar from './components/ui/FilterBar';
-import SurfboardGrid from './components/ui/SurfboardGrid';
+import HeroSection from './components/ui/HeroSection';
 import NearMeSection from './components/ui/NearMeSection';
+import SurfboardGrid from './components/ui/SurfboardGrid';
 import { surfboards as dummySurfboards, Surfboard } from './data/surfboards';
 
 export default function Home() {
@@ -236,6 +236,7 @@ export default function Home() {
             }}
             totalCount={filteredBoards.length}
             searchTerm={searchTerm}
+            allSurfboards={allSurfboards}
           />
           <SurfboardGrid boards={displayedBoards} />
           {hasMoreBoards && (
