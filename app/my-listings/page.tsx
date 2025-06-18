@@ -1,14 +1,15 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Footer from '../components/layout/Footer';
 import Header from '../components/layout/Header';
+import MyListingCard from '../components/listings/MyListingCard';
+import { useBoardStatus } from '../hooks/useBoardStatus';
 
 interface UserListing {
-  id: string; // Changed from number to string for database IDs
+  id: string;
   title: string;
   brand: string;
   length: string;
@@ -35,12 +36,16 @@ export default function MyListingsPage() {
     listing: UserListing | null;
   }>({ isOpen: false, listing: null });
   const [isDeleting, setIsDeleting] = useState(false);
+  const [updatingListingId, setUpdatingListingId] = useState<string | null>(
+    null
+  );
+  const { updateBoardStatus } = useBoardStatus();
 
-  // Load user's listings - must be before early returns
+  // Load user's listings
   useEffect(() => {
     const loadListings = async () => {
       if (!session?.user?.email) {
-        return; // Don't load if no session
+        return;
       }
 
       try {
@@ -64,6 +69,27 @@ export default function MyListingsPage() {
 
     loadListings();
   }, [session]);
+
+  // Handle status change
+  const handleStatusChange = async (
+    listing: UserListing,
+    newStatus: 'active' | 'sold'
+  ) => {
+    setUpdatingListingId(listing.id);
+    try {
+      await updateBoardStatus(listing.id, newStatus);
+
+      // Update the listing in the state
+      setListings(prev =>
+        prev.map(l => (l.id === listing.id ? { ...l, status: newStatus } : l))
+      );
+    } catch (err) {
+      console.error('Status update error:', err);
+      alert(err instanceof Error ? err.message : 'Failed to update status');
+    } finally {
+      setUpdatingListingId(null);
+    }
+  };
 
   // Delete listing function
   const handleDeleteListing = async (listing: UserListing) => {
@@ -93,7 +119,7 @@ export default function MyListingsPage() {
       // Close the confirmation modal
       setDeleteConfirm({ isOpen: false, listing: null });
 
-      // Show success message (you could add a toast notification here)
+      // Show success message
       alert('Listing deleted successfully!');
     } catch (err) {
       console.error('Delete error:', err);
@@ -139,31 +165,9 @@ export default function MyListingsPage() {
     return null;
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'sold':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'Active';
-      case 'pending':
-        return 'Pending Sale';
-      case 'sold':
-        return 'Sold';
-      default:
-        return status;
-    }
-  };
+  // Separate listings by status
+  const activeListings = listings.filter(l => l.status === 'active');
+  const soldListings = listings.filter(l => l.status === 'sold');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
@@ -253,115 +257,66 @@ export default function MyListingsPage() {
                 </button>
               </div>
             ) : (
-              // Listings Grid
-              <div>
+              // Listings Sections
+              <div className="space-y-12">
+                {/* Summary */}
                 <div className="mb-6">
                   <p className="text-gray-600">
                     {listings.length} listing{listings.length !== 1 ? 's' : ''}{' '}
-                    found
+                    total • {activeListings.length} active •{' '}
+                    {soldListings.length} sold
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {listings.map(listing => (
-                    <div
-                      key={listing.id}
-                      className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-                    >
-                      {/* Image */}
-                      <div className="aspect-video bg-gray-100 relative">
-                        {listing.thumbnailUrl ? (
-                          <Image
-                            src={listing.thumbnailUrl}
-                            alt={listing.title}
-                            fill
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <svg
-                              className="w-12 h-12 text-gray-400"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={1}
-                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                              />
-                            </svg>
-                          </div>
-                        )}
-
-                        {/* Status Badge */}
-                        <div className="absolute top-3 right-3">
-                          <span
-                            className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(listing.status)}`}
-                          >
-                            {getStatusText(listing.status)}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Content */}
-                      <div className="p-4">
-                        <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-semibold text-gray-900 text-lg">
-                            {listing.title}
-                          </h3>
-                          <span className="text-xl font-bold text-gray-900">
-                            ${listing.price.toLocaleString()}
-                          </span>
-                        </div>
-
-                        <p className="text-gray-600 text-sm mb-3">
-                          {listing.brand} • {listing.length} •{' '}
-                          {listing.condition}
-                        </p>
-
-                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                          {listing.description}
-                        </p>
-
-                        <div className="flex items-center justify-between text-sm text-gray-500">
-                          <span>
-                            📍 {listing.city}, {listing.state}
-                          </span>
-                          <span>
-                            Listed{' '}
-                            {new Date(listing.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="flex gap-2 mt-4">
-                          <button
-                            onClick={() => router.push(`/boards/${listing.id}`)}
-                            className="flex-1 bg-gray-100 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer text-sm"
-                          >
-                            View
-                          </button>
-                          <button
-                            onClick={() =>
-                              router.push(`/edit-listing/${listing.id}`)
-                            }
-                            className="flex-1 bg-gray-900 text-white px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer text-sm"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteListing(listing)}
-                            className="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors cursor-pointer text-sm"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
+                {/* Active Listings Section */}
+                {activeListings.length > 0 && (
+                  <div>
+                    <div className="flex items-center mb-6">
+                      <h2 className="text-xl font-semibold text-gray-900">
+                        Active Listings
+                      </h2>
+                      <span className="ml-3 bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">
+                        {activeListings.length}
+                      </span>
                     </div>
-                  ))}
-                </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {activeListings.map(listing => (
+                        <MyListingCard
+                          key={listing.id}
+                          listing={listing}
+                          onStatusChange={handleStatusChange}
+                          onDelete={handleDeleteListing}
+                          isUpdating={updatingListingId === listing.id}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Sold Listings Section */}
+                {soldListings.length > 0 && (
+                  <div>
+                    <div className="flex items-center mb-6">
+                      <h2 className="text-xl font-semibold text-gray-900">
+                        Sold Listings
+                      </h2>
+                      <span className="ml-3 bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1 rounded-full">
+                        {soldListings.length}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {soldListings.map(listing => (
+                        <MyListingCard
+                          key={listing.id}
+                          listing={listing}
+                          onStatusChange={handleStatusChange}
+                          onDelete={handleDeleteListing}
+                          isUpdating={updatingListingId === listing.id}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </>
