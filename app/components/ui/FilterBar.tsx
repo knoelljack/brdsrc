@@ -1,4 +1,4 @@
-import { getLocationsByState, getUniqueStates } from '@/app/data/surfboards';
+import { Surfboard } from '@/app/data/surfboards';
 import {
   CONDITION_OPTIONS,
   LENGTH_OPTIONS,
@@ -20,7 +20,38 @@ interface FilterBarProps {
   onSortChange: (value: string) => void;
   totalCount?: number;
   searchTerm?: string;
+  allSurfboards?: Surfboard[]; // New prop for combined data
 }
+
+// Generate location filters dynamically from combined data
+const getUniqueStatesFromData = (boards: Surfboard[]): string[] => {
+  const states = boards.map(board => board.state).filter(Boolean);
+  return Array.from(new Set(states)).sort();
+};
+
+const getLocationsByStateFromData = (
+  boards: Surfboard[]
+): Record<string, string[]> => {
+  const locationsByState: Record<string, string[]> = {};
+
+  boards.forEach(board => {
+    if (board.state && board.city) {
+      if (!locationsByState[board.state]) {
+        locationsByState[board.state] = [];
+      }
+      if (!locationsByState[board.state].includes(board.city)) {
+        locationsByState[board.state].push(board.city);
+      }
+    }
+  });
+
+  // Sort cities within each state
+  Object.keys(locationsByState).forEach(state => {
+    locationsByState[state].sort();
+  });
+
+  return locationsByState;
+};
 
 export default function FilterBar({
   locationFilter,
@@ -35,9 +66,10 @@ export default function FilterBar({
   onSortChange,
   totalCount,
   searchTerm,
+  allSurfboards = [],
 }: FilterBarProps) {
-  const states = getUniqueStates();
-  const locationsByState = getLocationsByState();
+  const states = getUniqueStatesFromData(allSurfboards);
+  const locationsByState = getLocationsByStateFromData(allSurfboards);
 
   const selectClassName =
     'custom-select appearance-none bg-white px-4 py-2.5 pr-10 border border-gray-300 rounded-lg text-sm font-medium text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 hover:border-gray-400 transition-colors cursor-pointer w-full';
