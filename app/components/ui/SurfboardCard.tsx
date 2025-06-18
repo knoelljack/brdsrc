@@ -1,8 +1,8 @@
 import { Surfboard } from '@/app/data/surfboards';
-import Link from 'next/link';
-import Image from 'next/image';
 import { getConditionStyles } from '@/app/types/filters';
 import { isBoardNew } from '@/app/utils/dateUtils';
+import Image from 'next/image';
+import Link from 'next/link';
 
 interface SurfboardCardProps {
   board: Surfboard;
@@ -79,7 +79,9 @@ export default function SurfboardCard({ board }: SurfboardCardProps) {
           >
             {board.condition}
           </span>
-          <span className="text-xs text-gray-500">📍 {board.location}</span>
+          <span className="text-xs text-gray-500">
+            📍 {board.city}, {board.state}
+          </span>
         </div>
 
         <p className="text-sm text-gray-600 mb-4 flex-grow">
