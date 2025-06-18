@@ -55,6 +55,7 @@ model User {
   accounts   Account[]
   sessions   Session[]
   surfboards Surfboard[]
+  favorites  Favorite[] // User's favorite surfboards
 }
 
 model VerificationToken {
@@ -86,4 +87,19 @@ model Surfboard {
   // Link to user
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Favorites relation
+  favoritedBy Favorite[]
+}
+
+model Favorite {
+  id          String   @id @default(cuid())
+  userId      String
+  surfboardId String
+  createdAt   DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  surfboard Surfboard @relation(fields: [surfboardId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, surfboardId]) // Prevent duplicate favorites
 }
