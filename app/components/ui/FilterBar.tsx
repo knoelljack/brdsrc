@@ -23,6 +23,36 @@ interface FilterBarProps {
   allSurfboards?: Surfboard[]; // New prop for combined data
 }
 
+// Generate location filters dynamically from combined data
+const getUniqueStatesFromData = (boards: Surfboard[]): string[] => {
+  const states = boards.map(board => board.state).filter(Boolean);
+  return Array.from(new Set(states)).sort();
+};
+
+const getLocationsByStateFromData = (
+  boards: Surfboard[]
+): Record<string, string[]> => {
+  const locationsByState: Record<string, string[]> = {};
+
+  boards.forEach(board => {
+    if (board.state && board.city) {
+      if (!locationsByState[board.state]) {
+        locationsByState[board.state] = [];
+      }
+      if (!locationsByState[board.state].includes(board.city)) {
+        locationsByState[board.state].push(board.city);
+      }
+    }
+  });
+
+  // Sort cities within each state
+  Object.keys(locationsByState).forEach(state => {
+    locationsByState[state].sort();
+  });
+
+  return locationsByState;
+};
+
 export default function FilterBar({
   locationFilter,
   lengthFilter,
@@ -38,36 +68,6 @@ export default function FilterBar({
   searchTerm,
   allSurfboards = [],
 }: FilterBarProps) {
-  // Generate location filters dynamically from combined data
-  const getUniqueStatesFromData = (boards: Surfboard[]): string[] => {
-    const states = boards.map(board => board.state).filter(Boolean);
-    return Array.from(new Set(states)).sort();
-  };
-
-  const getLocationsByStateFromData = (
-    boards: Surfboard[]
-  ): Record<string, string[]> => {
-    const locationsByState: Record<string, string[]> = {};
-
-    boards.forEach(board => {
-      if (board.state && board.city) {
-        if (!locationsByState[board.state]) {
-          locationsByState[board.state] = [];
-        }
-        if (!locationsByState[board.state].includes(board.city)) {
-          locationsByState[board.state].push(board.city);
-        }
-      }
-    });
-
-    // Sort cities within each state
-    Object.keys(locationsByState).forEach(state => {
-      locationsByState[state].sort();
-    });
-
-    return locationsByState;
-  };
-
   const states = getUniqueStatesFromData(allSurfboards);
   const locationsByState = getLocationsByStateFromData(allSurfboards);
 

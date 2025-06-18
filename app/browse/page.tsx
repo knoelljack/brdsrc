@@ -1,12 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import Footer from '../components/layout/Footer';
 import Header from '../components/layout/Header';
 import FilterBar from '../components/ui/FilterBar';
+import LocationFeedback from '../components/ui/LocationFeedback';
 import SurfboardGrid from '../components/ui/SurfboardGrid';
-import { surfboards as dummySurfboards, Surfboard } from '../data/surfboards';
+import { useGeolocation } from '../hooks/useGeolocation';
+import { useSurfboardFilters } from '../hooks/useSurfboardFilters';
+import { useSurfboards } from '../hooks/useSurfboards';
+import { getBoardCategories } from '../utils/boardCategories';
 import { isBoardNew } from '../utils/dateUtils';
 
 export default function Browse() {
@@ -18,203 +22,29 @@ export default function Browse() {
   const [sortBy, setSortBy] = useState('newest');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [realSurfboards, setRealSurfboards] = useState<Surfboard[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Combine dummy and real surfboards
-  const allSurfboards = useMemo(() => {
-    // For now, we'll show dummy data with higher IDs to avoid conflicts
-    const adjustedDummyBoards = dummySurfboards.map(board => ({
-      ...board,
-      id: (board.id as number) + 10000, // Add offset to avoid ID conflicts
-    }));
-
-    return [...realSurfboards, ...adjustedDummyBoards];
-  }, [realSurfboards]);
-
-  // Fetch real surfboards from API
-  useEffect(() => {
-    const fetchSurfboards = async () => {
-      try {
-        const response = await fetch('/api/surfboards/browse');
-        if (response.ok) {
-          const data = await response.json();
-          setRealSurfboards(data.surfboards);
-        } else {
-          console.error('Failed to fetch surfboards');
-        }
-      } catch (error) {
-        console.error('Error fetching surfboards:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchSurfboards();
-  }, []);
-
-  // Parse length from string (e.g. "9'6"" -> 9.5)
-  const parseLength = (lengthStr: string): number => {
-    const match = lengthStr.match(/(\d+)'(\d*)/);
-    if (match) {
-      const feet = parseInt(match[1]);
-      const inches = match[2] ? parseInt(match[2]) : 0;
-      return feet + inches / 12;
-    }
-    return 0;
-  };
+  // Use custom hooks
+  const { allSurfboards, isLoading } = useSurfboards();
+  const {
+    userLocation,
+    locationError,
+    isLoading: locationLoading,
+  } = useGeolocation(locationFilter === 'near-me');
 
   // Get categories based on board lengths
-  const categories = [
-    { id: '', name: 'All Boards', count: allSurfboards.length },
-    {
-      id: 'longboards',
-      name: "Longboards (9'+)",
-      count: allSurfboards.filter((b: Surfboard) => parseLength(b.length) >= 9)
-        .length,
-    },
-    {
-      id: 'midlength',
-      name: "Mid-length (7'-9')",
-      count: allSurfboards.filter((b: Surfboard) => {
-        const l = parseLength(b.length);
-        return l >= 7 && l < 9;
-      }).length,
-    },
-    {
-      id: 'shortboards',
-      name: "Shortboards (Under 7')",
-      count: allSurfboards.filter((b: Surfboard) => parseLength(b.length) < 7)
-        .length,
-    },
-  ];
+  const categories = getBoardCategories(allSurfboards);
 
-  // Filter and sort surfboards
-  const filteredBoards = useMemo(() => {
-    let filtered = [...allSurfboards];
-
-    // Search filter
-    if (searchTerm.trim()) {
-      const searchLower = searchTerm.toLowerCase().trim();
-      filtered = filtered.filter(board => {
-        return (
-          board.title.toLowerCase().includes(searchLower) ||
-          board.brand.toLowerCase().includes(searchLower) ||
-          board.location.toLowerCase().includes(searchLower) ||
-          board.city.toLowerCase().includes(searchLower) ||
-          board.state.toLowerCase().includes(searchLower) ||
-          board.description.toLowerCase().includes(searchLower) ||
-          board.condition.toLowerCase().includes(searchLower) ||
-          board.length.toLowerCase().includes(searchLower)
-        );
-      });
-    }
-
-    // Category filter
-    if (selectedCategory) {
-      filtered = filtered.filter(board => {
-        const boardLength = parseLength(board.length);
-        switch (selectedCategory) {
-          case 'longboards':
-            return boardLength >= 9;
-          case 'midlength':
-            return boardLength >= 7 && boardLength < 9;
-          case 'shortboards':
-            return boardLength < 7;
-          default:
-            return true;
-        }
-      });
-    }
-
-    // Location filter
-    if (locationFilter && locationFilter !== 'near-me') {
-      filtered = filtered.filter(board => {
-        const [city, state] = locationFilter.split(',');
-        return board.city === city && board.state === state;
-      });
-    }
-
-    // Length filter
-    if (lengthFilter && lengthFilter !== 'All Lengths') {
-      filtered = filtered.filter(board => {
-        const boardLength = parseLength(board.length);
-        switch (lengthFilter) {
-          case "Under 7'":
-            return boardLength < 7;
-          case "7' - 9'":
-            return boardLength >= 7 && boardLength < 9;
-          case "Over 9'":
-            return boardLength >= 9;
-          default:
-            return true;
-        }
-      });
-    }
-
-    // Price filter
-    if (priceFilter && priceFilter !== 'All Prices') {
-      filtered = filtered.filter(board => {
-        switch (priceFilter) {
-          case 'Under $400':
-            return board.price < 400;
-          case '$400 - $600':
-            return board.price >= 400 && board.price <= 600;
-          case 'Over $600':
-            return board.price > 600;
-          default:
-            return true;
-        }
-      });
-    }
-
-    // Condition filter
-    if (conditionFilter && conditionFilter !== 'All Conditions') {
-      filtered = filtered.filter(board => board.condition === conditionFilter);
-    }
-
-    // Sorting
-    switch (sortBy) {
-      case 'price-low':
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-high':
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-      case 'length-short':
-        filtered.sort((a, b) => parseLength(a.length) - parseLength(b.length));
-        break;
-      case 'distance':
-        filtered.sort((a, b) => a.location.localeCompare(b.location));
-        break;
-      default: // newest
-        filtered.sort((a, b) => {
-          // For newest sorting, use createdAt if available, otherwise fall back to ID comparison
-          if (a.createdAt && b.createdAt) {
-            return (
-              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-            );
-          }
-          // Fallback to ID comparison for dummy data (numbers)
-          if (typeof a.id === 'number' && typeof b.id === 'number') {
-            return b.id - a.id;
-          }
-          // For string IDs, use string comparison (newest first)
-          return String(b.id).localeCompare(String(a.id));
-        });
-    }
-
-    return filtered;
-  }, [
-    allSurfboards,
+  // Apply filters
+  const filteredBoards = useSurfboardFilters(allSurfboards, {
     searchTerm,
-    selectedCategory,
     locationFilter,
     lengthFilter,
     priceFilter,
     conditionFilter,
     sortBy,
-  ]);
+    selectedCategory,
+    userLocation,
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
@@ -269,11 +99,10 @@ export default function Browse() {
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors cursor-pointer ${
-                      selectedCategory === category.id
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors cursor-pointer ${selectedCategory === category.id
                         ? 'bg-gray-900 text-white'
                         : 'text-gray-700 hover:bg-gray-100'
-                    }`}
+                      }`}
                   >
                     <span>{category.name}</span>
                     <span className="text-xs opacity-75">
@@ -290,21 +119,19 @@ export default function Browse() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
-                    viewMode === 'grid'
+                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${viewMode === 'grid'
                       ? 'bg-gray-900 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                    }`}
                 >
                   Grid
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
-                    viewMode === 'list'
+                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${viewMode === 'list'
                       ? 'bg-gray-900 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                    }`}
                 >
                   List
                 </button>
@@ -328,6 +155,13 @@ export default function Browse() {
               totalCount={filteredBoards.length}
               searchTerm={searchTerm}
               allSurfboards={allSurfboards}
+            />
+
+            <LocationFeedback
+              locationFilter={locationFilter}
+              userLocation={userLocation}
+              locationError={locationError}
+              isLoading={locationLoading}
             />
 
             {/* Results */}
@@ -428,7 +262,7 @@ export default function Browse() {
                                   </p>
 
                                   <p className="text-sm text-gray-500 mb-3">
-                                    📍 {board.location}
+                                    📍 {board.city}, {board.state}
                                   </p>
 
                                   <p className="text-gray-700 mb-4">
