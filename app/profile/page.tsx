@@ -2,16 +2,19 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import Header from '../components/layout/Header';
+import { useState } from 'react';
 import Footer from '../components/layout/Footer';
-import { useProfileData } from '../hooks/useProfileData';
-import { useAccountStats } from '../hooks/useAccountStats';
+import Header from '../components/layout/Header';
 import ProfileInformation from '../components/profile/ProfileInformation';
 import ProfileSidebar from '../components/profile/ProfileSidebar';
+import DeleteAccountModal from '../components/ui/DeleteAccountModal';
+import { useAccountStats } from '../hooks/useAccountStats';
+import { useProfileData } from '../hooks/useProfileData';
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const {
     formData,
@@ -59,7 +62,7 @@ export default function ProfilePage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Profile Information */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-8">
             <ProfileInformation
               formData={formData}
               isEditing={isEditing}
@@ -69,6 +72,48 @@ export default function ProfilePage() {
               onSave={handleSave}
               onCancel={handleCancel}
             />
+
+            {/* Danger Zone */}
+            <div className="bg-white rounded-lg shadow-sm border border-red-200">
+              <div className="border-b border-red-200 px-6 py-4">
+                <h3 className="text-lg font-semibold text-red-600">
+                  Danger Zone
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Irreversible and destructive actions
+                </p>
+              </div>
+              <div className="px-6 py-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h4 className="text-base font-medium text-gray-900">
+                      Delete Account
+                    </h4>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Permanently delete your account and all associated data.
+                      This action cannot be undone.
+                    </p>
+                    <div className="mt-3 text-xs text-gray-500">
+                      <p className="font-medium mb-1">This will delete:</p>
+                      <ul className="space-y-0.5">
+                        <li>• Your profile and account information</li>
+                        <li>• All your surfboard listings</li>
+                        <li>• Your favorites and saved boards</li>
+                        <li>• All authentication sessions</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="ml-6">
+                    <button
+                      onClick={() => setShowDeleteModal(true)}
+                      className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                    >
+                      Delete Account
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Sidebar */}
@@ -83,6 +128,12 @@ export default function ProfilePage() {
       </main>
 
       <Footer />
+
+      {/* Delete Account Modal */}
+      <DeleteAccountModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 }
