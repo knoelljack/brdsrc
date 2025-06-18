@@ -1,5 +1,6 @@
 'use client';
 
+import { useFavorites } from '@/app/hooks/useFavorites';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useEffect } from 'react';
@@ -15,6 +16,7 @@ interface MobileAuthSectionProps {
 
 function MobileAuthSection({ onLinkClick }: MobileAuthSectionProps) {
   const { data: session, status } = useSession();
+  const { favorites } = useFavorites();
 
   if (status === 'loading') {
     return (
@@ -59,6 +61,34 @@ function MobileAuthSection({ onLinkClick }: MobileAuthSectionProps) {
           className="block text-gray-700 hover:text-gray-900 transition-colors font-medium text-xl py-4 px-6 rounded-lg hover:bg-gray-50"
         >
           My Listings
+        </Link>
+
+        <Link
+          href="/favorites"
+          onClick={onLinkClick}
+          className="flex items-center justify-between text-gray-700 hover:text-gray-900 transition-colors font-medium text-xl py-4 px-6 rounded-lg hover:bg-gray-50"
+        >
+          <span className="flex items-center gap-3">
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              />
+            </svg>
+            My Favorites
+          </span>
+          {favorites.length > 0 && (
+            <span className="bg-red-100 text-red-800 text-sm font-medium px-2 py-1 rounded-full">
+              {favorites.length}
+            </span>
+          )}
         </Link>
 
         <button
