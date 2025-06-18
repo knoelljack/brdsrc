@@ -1,11 +1,11 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import Header from '../components/layout/Header';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import Footer from '../components/layout/Footer';
+import Header from '../components/layout/Header';
 
 interface UserListing {
   id: string; // Changed from number to string for database IDs
@@ -326,7 +326,9 @@ export default function MyListingsPage() {
                         </p>
 
                         <div className="flex items-center justify-between text-sm text-gray-500">
-                          <span>📍 {listing.location}</span>
+                          <span>
+                            📍 {listing.city}, {listing.state}
+                          </span>
                           <span>
                             Listed{' '}
                             {new Date(listing.createdAt).toLocaleDateString()}
