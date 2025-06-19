@@ -50,7 +50,7 @@ export default function SurfboardCard({ board }: SurfboardCardProps) {
           <button
             onClick={handleToggleFavorite}
             disabled={isToggling}
-            className={`absolute top-3 right-3 p-2 rounded-full transition-all duration-200 ${
+            className={`absolute top-3 left-3 p-2 rounded-full transition-all duration-200 ${
               isBoardFavorited
                 ? 'bg-red-500 text-white hover:bg-red-600'
                 : 'bg-white/80 text-gray-600 hover:bg-white hover:text-red-500'
