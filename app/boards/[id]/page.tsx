@@ -219,12 +219,50 @@ export default function BoardDetailPage({ params }: BoardDetailPageProps) {
             {/* Details Section */}
             <div className="p-8">
               <div className="mb-6">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  {board.title}
-                </h1>
-                <p className="text-2xl font-bold text-gray-900">
-                  ${board.price}
-                </p>
+                {/* Status Banner for Sold Items */}
+                {board.status === 'sold' && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-center">
+                      <svg
+                        className="w-5 h-5 text-red-500 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+                        />
+                      </svg>
+                      <span className="text-red-800 font-medium">
+                        This surfboard has been sold
+                      </span>
+                    </div>
+                    <p className="text-red-700 text-sm mt-1">
+                      This listing is no longer available for purchase
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                      {board.title}
+                      {board.status === 'sold' && (
+                        <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                          SOLD
+                        </span>
+                      )}
+                    </h1>
+                    <p
+                      className={`text-2xl font-bold ${board.status === 'sold' ? 'text-gray-500' : 'text-gray-900'}`}
+                    >
+                      ${board.price.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-4 mb-8">
@@ -269,7 +307,7 @@ export default function BoardDetailPage({ params }: BoardDetailPageProps) {
               </div>
 
               {/* Seller Contact Information */}
-              {!isOwner && (
+              {!isOwner && board.status === 'active' && (
                 <div className="bg-gray-50 rounded-lg p-6 mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
                     Contact Seller
@@ -350,7 +388,7 @@ export default function BoardDetailPage({ params }: BoardDetailPageProps) {
 
               {/* Action Buttons */}
               <div className="space-y-4">
-                {!isOwner && (
+                {!isOwner && board.status === 'active' && (
                   <button
                     onClick={handleToggleFavorite}
                     disabled={favoriteActionLoading || favoritesLoading}
@@ -381,6 +419,30 @@ export default function BoardDetailPage({ params }: BoardDetailPageProps) {
                       ? 'Remove from Favorites'
                       : 'Save to Favorites'}
                   </button>
+                )}
+
+                {/* Sold Item Notice for Non-Owners */}
+                {!isOwner && board.status === 'sold' && (
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center text-gray-600">
+                      <svg
+                        className="w-5 h-5 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span className="text-sm">
+                        This surfboard is no longer available
+                      </span>
+                    </div>
+                  </div>
                 )}
 
                 {isOwner && (
