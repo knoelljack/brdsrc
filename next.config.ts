@@ -21,8 +21,6 @@ const nextConfig: NextConfig = {
   compress: true,
   // Enable static optimization
   trailingSlash: false,
-  // Optimize fonts
-  optimizeFonts: true,
 };
 
 export default nextConfig;

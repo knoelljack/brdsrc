@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  calculateDistance,
-  surfboards as dummySurfboards,
-  Surfboard,
-} from '@/app/data/surfboards';
+import { getSurfboardsNearLocation, Surfboard } from '@/app/data/surfboards';
 import { useCallback, useEffect, useState } from 'react';
 import SelectWithIcon from './SelectWithIcon';
 import SurfboardCard from './SurfboardCard';
@@ -29,7 +25,7 @@ export default function NearMeSection({
   const [allSurfboards, setAllSurfboards] = useState<Surfboard[]>([]);
   const [fetchingBoards, setFetchingBoards] = useState(false);
 
-  // Fetch real surfboards from API and combine with dummy data
+  // Fetch real surfboards from API
   useEffect(() => {
     const fetchSurfboards = async () => {
       setFetchingBoards(true);
@@ -37,26 +33,14 @@ export default function NearMeSection({
         const response = await fetch('/api/surfboards/browse');
         if (response.ok) {
           const data = await response.json();
-          const realSurfboards = data.surfboards;
-
-          // Add offset to dummy board IDs to avoid conflicts
-          const adjustedDummyBoards = dummySurfboards.map(board => ({
-            ...board,
-            id: (board.id as number) + 10000,
-          }));
-
-          // Combine real and dummy surfboards
-          const combined = [...realSurfboards, ...adjustedDummyBoards];
-          setAllSurfboards(combined);
+          setAllSurfboards(data.surfboards);
         } else {
           console.error('Failed to fetch surfboards');
-          // Fall back to dummy data only
-          setAllSurfboards(dummySurfboards);
+          setAllSurfboards([]);
         }
       } catch (error) {
         console.error('Error fetching surfboards:', error);
-        // Fall back to dummy data only
-        setAllSurfboards(dummySurfboards);
+        setAllSurfboards([]);
       } finally {
         setFetchingBoards(false);
       }
@@ -65,36 +49,19 @@ export default function NearMeSection({
     fetchSurfboards();
   }, []);
 
-  // Memoized function to get surfboards near location from combined dataset
+  // Use the utility function from surfboards data
   const getSurfboardsNearLocationFromCombined = useCallback(
     (
       userLat: number,
       userLng: number,
       radiusMiles: number = 50
-    ): Surfboard[] => {
-      return allSurfboards
-        .filter(board => {
-          if (!board.coordinates) return false;
-          const distance = calculateDistance(
-            userLat,
-            userLng,
-            board.coordinates.lat,
-            board.coordinates.lng
-          );
-          return distance <= radiusMiles;
-        })
-        .map(board => ({
-          ...board,
-          distance: board.coordinates
-            ? calculateDistance(
-                userLat,
-                userLng,
-                board.coordinates.lat,
-                board.coordinates.lng
-              )
-            : undefined,
-        }))
-        .sort((a, b) => (a.distance || 0) - (b.distance || 0));
+    ): (Surfboard & { distance?: number })[] => {
+      return getSurfboardsNearLocation(
+        allSurfboards,
+        userLat,
+        userLng,
+        radiusMiles
+      );
     },
     [allSurfboards]
   );
