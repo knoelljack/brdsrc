@@ -53,7 +53,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     // Fetch active board listings for dynamic routes
     const response = await fetch(`${baseUrl}/api/surfboards?status=active`, {
-      cache: 'no-store',
+      next: { revalidate: 3600 }, // Revalidate every hour
     });
 
     if (response.ok) {
