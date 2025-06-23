@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { surfboards as dummySurfboards, Surfboard } from '../data/surfboards';
+import { useEffect, useState } from 'react';
+import { Surfboard } from '../data/surfboards';
 
 interface SurfboardsState {
   allSurfboards: Surfboard[];
@@ -13,16 +13,8 @@ export const useSurfboards = (): SurfboardsState => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Combine dummy and real surfboards
-  const allSurfboards = useMemo(() => {
-    // Add offset to dummy board IDs to avoid conflicts
-    const adjustedDummyBoards = dummySurfboards.map(board => ({
-      ...board,
-      id: (board.id as number) + 10000,
-    }));
-
-    return [...realSurfboards, ...adjustedDummyBoards];
-  }, [realSurfboards]);
+  // PRODUCTION: Only use real surfboards from database
+  const allSurfboards = realSurfboards;
 
   // Fetch real surfboards from API
   useEffect(() => {
