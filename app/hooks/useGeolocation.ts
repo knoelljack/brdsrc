@@ -30,10 +30,32 @@ export const useGeolocation = (shouldRequest: boolean): GeolocationState => {
           },
           error => {
             console.error('Error getting location:', error);
-            setLocationError(
-              'Unable to get your location. Please enable location services.'
-            );
+            let errorMessage = 'Unable to get your location.';
+
+            switch (error.code) {
+              case error.PERMISSION_DENIED:
+                errorMessage =
+                  'Location access denied. Please enable location permissions.';
+                break;
+              case error.POSITION_UNAVAILABLE:
+                errorMessage =
+                  'Location information unavailable. Please try again.';
+                break;
+              case error.TIMEOUT:
+                errorMessage = 'Location request timed out. Please try again.';
+                break;
+              default:
+                errorMessage =
+                  'Unable to retrieve your location. Please check your location settings.';
+            }
+
+            setLocationError(errorMessage);
             setIsLoading(false);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 15000, // 15 seconds timeout
+            maximumAge: 300000, // 5 minutes cache
           }
         );
       } else {

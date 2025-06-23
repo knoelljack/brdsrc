@@ -66,6 +66,13 @@ export default function LocationAutocomplete({
         // Use Google Places API
         const service = new window.google!.maps!.places!.AutocompleteService();
 
+        // Add timeout for Google Places API
+        const googleTimeout = setTimeout(() => {
+          console.error('Google Places API timed out');
+          setSuggestions([]);
+          setIsLoading(false);
+        }, 10000); // 10 second timeout
+
         service.getPlacePredictions(
           {
             input: query,
@@ -73,6 +80,8 @@ export default function LocationAutocomplete({
             componentRestrictions: { country: 'us' },
           },
           (predictions: GoogleMapsPrediction[] | null, status: string) => {
+            clearTimeout(googleTimeout);
+
             if (
               status === window.google!.maps!.places!.PlacesServiceStatus.OK &&
               predictions
@@ -85,6 +94,13 @@ export default function LocationAutocomplete({
 
               const results: LocationResult[] = [];
               let completed = 0;
+
+              // Add timeout for place details
+              const detailsTimeout = setTimeout(() => {
+                console.error('Google Places details timed out');
+                setSuggestions(results); // Return whatever results we have
+                setIsLoading(false);
+              }, 8000); // 8 second timeout for details
 
               predictions
                 .slice(0, 5)
@@ -130,6 +146,7 @@ export default function LocationAutocomplete({
                       }
 
                       if (completed === predictions.slice(0, 5).length) {
+                        clearTimeout(detailsTimeout);
                         setSuggestions(results);
                         setIsLoading(false);
                       }
@@ -144,30 +161,54 @@ export default function LocationAutocomplete({
         );
       } else {
         // Fallback to OpenStreetMap Nominatim (free geocoding service)
-        const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=us&limit=5&addressdetails=1`
-        );
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-        if (response.ok) {
-          const data = await response.json();
-          const results: LocationResult[] = data
-            .filter(
-              (item: OpenStreetMapResult) =>
-                item.address?.city && item.address?.state
-            )
-            .map((item: OpenStreetMapResult) => ({
-              address: item.display_name,
-              city:
-                item.address!.city ||
-                item.address!.town ||
-                item.address!.village ||
-                '',
-              state: item.address!.state || '',
-              latitude: parseFloat(item.lat),
-              longitude: parseFloat(item.lon),
-            }));
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=us&limit=5&addressdetails=1`,
+            {
+              signal: controller.signal,
+              headers: {
+                'User-Agent': 'BoardSource/1.0 (surfboard listing service)',
+              },
+            }
+          );
 
-          setSuggestions(results);
+          clearTimeout(timeoutId);
+
+          if (response.ok) {
+            const data = await response.json();
+            const results: LocationResult[] = data
+              .filter(
+                (item: OpenStreetMapResult) =>
+                  item.address?.city && item.address?.state
+              )
+              .map((item: OpenStreetMapResult) => ({
+                address: item.display_name,
+                city:
+                  item.address!.city ||
+                  item.address!.town ||
+                  item.address!.village ||
+                  '',
+                state: item.address!.state || '',
+                latitude: parseFloat(item.lat),
+                longitude: parseFloat(item.lon),
+              }));
+
+            setSuggestions(results);
+          } else {
+            console.error('OpenStreetMap API request failed:', response.status);
+            setSuggestions([]);
+          }
+        } catch (fetchError) {
+          clearTimeout(timeoutId);
+          if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+            console.error('Location search timed out');
+          } else {
+            console.error('Error fetching from OpenStreetMap:', fetchError);
+          }
+          setSuggestions([]);
         }
         setIsLoading(false);
       }
