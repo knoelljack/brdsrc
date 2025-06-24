@@ -146,7 +146,7 @@ export default function SurfboardCard({ board }: SurfboardCardProps) {
             {board.condition}
           </span>
           <span className="text-xs text-gray-500">
-            📍 {board.city}, {board.state}
+            📍 {board.location || `${board.city}, ${board.state}`}
           </span>
         </div>
 

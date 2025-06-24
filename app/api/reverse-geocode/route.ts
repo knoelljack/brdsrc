@@ -48,12 +48,24 @@ export async function GET(request: NextRequest) {
 
     const state = address.state || 'Unknown State';
 
+    // Build display location (similar to autocomplete logic)
+    const neighborhood = address.neighbourhood || address.suburb;
+    let displayLocation = '';
+
+    if (neighborhood && city && neighborhood !== city) {
+      displayLocation = `${neighborhood}, ${city}, ${state}`;
+    } else {
+      displayLocation = `${city}, ${state}`;
+    }
+
     const result = {
       address: data.display_name,
+      displayLocation,
       city,
       state,
       latitude: parseFloat(lat),
       longitude: parseFloat(lon),
+      neighborhood: neighborhood || undefined,
     };
 
     return NextResponse.json(result);

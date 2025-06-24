@@ -3,11 +3,13 @@
 import { useCallback, useEffect, useRef } from 'react';
 
 interface LocationResult {
-  address: string;
-  city: string;
+  address: string; // Full formatted address as displayed
+  displayLocation: string; // Specific location name (e.g., "Venice, Los Angeles, CA" or "Manhattan Beach, CA")
+  city: string; // Administrative city for database/filtering
   state: string;
   latitude: number;
   longitude: number;
+  neighborhood?: string; // Specific neighborhood if available
 }
 
 interface LocationAutocompleteProps {
@@ -118,28 +120,67 @@ export default function LocationAutocomplete({
           return;
         }
 
-        // Extract city and state from address components
+        // Extract location information from address components
         let city = '';
         let state = '';
+        let neighborhood = '';
+        let sublocality = '';
+        let administrativeCity = '';
 
+        // First pass: collect all relevant location components
         for (const component of place.address_components) {
           const types = component.types;
 
-          if (types.includes('locality')) {
-            city = component.long_name;
+          if (types.includes('neighborhood')) {
+            neighborhood = component.long_name;
+          } else if (
+            types.includes('sublocality') ||
+            types.includes('sublocality_level_1')
+          ) {
+            sublocality = component.long_name;
+          } else if (types.includes('locality')) {
+            administrativeCity = component.long_name;
           } else if (types.includes('administrative_area_level_1')) {
             state = component.short_name;
           }
         }
 
-        // Fallback for city if locality not found
+        // Build the best display location and determine database city
+        let displayLocation = '';
+        let specificLocation = '';
+
+        // Prioritize neighborhood > sublocality > administrative city
+        if (neighborhood) {
+          specificLocation = neighborhood;
+          city = administrativeCity || neighborhood; // Use administrative city for database, fallback to neighborhood
+        } else if (sublocality) {
+          specificLocation = sublocality;
+          city = administrativeCity || sublocality;
+        } else if (administrativeCity) {
+          specificLocation = administrativeCity;
+          city = administrativeCity;
+        }
+
+        // Build display location string
+        if (
+          specificLocation &&
+          administrativeCity &&
+          specificLocation !== administrativeCity
+        ) {
+          // Show "Venice, Los Angeles, CA" for neighborhoods
+          displayLocation = `${specificLocation}, ${administrativeCity}, ${state}`;
+        } else if (specificLocation) {
+          // Show "Los Angeles, CA" for cities
+          displayLocation = `${specificLocation}, ${state}`;
+        }
+
+        // Fallback if we couldn't extract proper location info
         if (!city) {
           for (const component of place.address_components) {
             const types = component.types;
-
             if (
-              types.includes('sublocality') ||
-              types.includes('neighborhood')
+              types.includes('postal_town') ||
+              types.includes('administrative_area_level_3')
             ) {
               city = component.long_name;
               break;
@@ -147,13 +188,15 @@ export default function LocationAutocomplete({
           }
         }
 
-        if (city && state) {
+        if (city && state && displayLocation) {
           const result: LocationResult = {
             address: place.formatted_address || '',
-            city,
+            displayLocation,
+            city: administrativeCity || city, // Use administrative city for database consistency
             state,
             latitude: place.geometry.location.lat(),
             longitude: place.geometry.location.lng(),
+            neighborhood: neighborhood || sublocality || undefined,
           };
 
           onChange(result);

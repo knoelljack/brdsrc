@@ -46,10 +46,12 @@ export default function SellPage() {
 
   const handleLocationSelect = (location: {
     address: string;
+    displayLocation: string;
     city: string;
     state: string;
     latitude: number;
     longitude: number;
+    neighborhood?: string;
   }) => {
     setCoordinates({
       latitude: location.latitude,

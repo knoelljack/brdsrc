@@ -237,8 +237,8 @@ export default function BoardDetailClient({ board }: BoardDetailClientProps) {
 
                 <div className="flex items-center justify-between py-3 border-b border-gray-200">
                   <span className="text-gray-600">Location</span>
-                  <span className="font-medium text-gray-900">
-                    📍 {board.city}, {board.state}
+                  <span className="text-gray-600">
+                    📍 {board.location || `${board.city}, ${board.state}`}
                   </span>
                 </div>
               </div>

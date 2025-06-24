@@ -121,7 +121,7 @@ export default function MyListingCard({
 
         <div className="flex items-center justify-between text-sm text-gray-500">
           <span>
-            📍 {listing.city}, {listing.state}
+            📍 {listing.location || `${listing.city}, ${listing.state}`}
           </span>
           <span>Listed {new Date(listing.createdAt).toLocaleDateString()}</span>
         </div>

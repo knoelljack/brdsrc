@@ -9,10 +9,12 @@ interface LocationInfoProps extends ListingFormProps {
   showCityState?: boolean;
   onLocationSelect?: (location: {
     address: string;
+    displayLocation: string;
     city: string;
     state: string;
     latitude: number;
     longitude: number;
+    neighborhood?: string;
   }) => void;
 }
 
@@ -42,13 +44,15 @@ export default function LocationInfo({
 
   const handleLocationAutocomplete = (location: {
     address: string;
+    displayLocation: string;
     city: string;
     state: string;
     latitude: number;
     longitude: number;
+    neighborhood?: string;
   }) => {
-    // Update form data with location details
-    onChange('location', location.address);
+    // Update form data with location details - use displayLocation for better UX
+    onChange('location', location.displayLocation);
     onChange('city', location.city);
     onChange('state', location.state);
 
