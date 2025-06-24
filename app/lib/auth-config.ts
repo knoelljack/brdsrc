@@ -1,12 +1,12 @@
-import { type AuthOptions } from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { prisma } from '@/app/lib/prisma';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import bcrypt from 'bcryptjs';
-import type { JWT } from 'next-auth/jwt';
-import type { Session, User, Account, Profile } from 'next-auth';
+import type { Account, Profile, Session, User } from 'next-auth';
+import { type AuthOptions } from 'next-auth';
 import type { AdapterUser } from 'next-auth/adapters';
+import type { JWT } from 'next-auth/jwt';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
 
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -68,23 +68,12 @@ export const authOptions: AuthOptions = {
       }
       return session;
     },
-    async signIn({
-      user,
-      account,
-      profile,
-    }: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async signIn(_params: {
       user: User | AdapterUser;
       account: Account | null;
       profile?: Profile;
     }) {
-      // Log detailed info for debugging (remove in production)
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🔐 NextAuth SignIn Callback:', {
-          user: user?.email,
-          account: account?.provider,
-          profile: profile?.email,
-        });
-      }
       return true;
     },
   },
@@ -92,13 +81,4 @@ export const authOptions: AuthOptions = {
     strategy: 'jwt' as const,
   },
   debug: process.env.NODE_ENV === 'development',
-  // Add error logging
-  events: {
-    async signIn(message: { user: User }) {
-      console.log('✅ Successful sign in:', message.user.email);
-    },
-    async signOut(message: { session?: Session }) {
-      console.log('👋 Sign out:', message.session?.user?.email);
-    },
-  },
 };

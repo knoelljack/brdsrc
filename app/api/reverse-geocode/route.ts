@@ -1,86 +1,66 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-interface OpenStreetMapResult {
-  lat: string;
-  lon: string;
-  display_name: string;
-  address?: {
-    city?: string;
-    town?: string;
-    village?: string;
-    state?: string;
-    region?: string;
-    administrative_area_level_1?: string;
-    'ISO3166-2-lvl4'?: string;
-    country?: string;
-  };
-}
-
+// Simple reverse geocoding using OpenStreetMap Nominatim API
 export async function GET(request: NextRequest) {
-  console.log('🌍 Reverse geocode API called');
-
   try {
     const { searchParams } = new URL(request.url);
     const lat = searchParams.get('lat');
     const lon = searchParams.get('lon');
 
-    console.log('📍 Coordinates:', { lat, lon });
-
     if (!lat || !lon) {
-      console.log('❌ Missing coordinates');
       return NextResponse.json(
-        { error: 'Missing coordinates' },
+        { error: 'Missing latitude or longitude parameters' },
         { status: 400 }
       );
     }
 
-    console.log('🌐 Making request to OpenStreetMap reverse geocode...');
+    // Use OpenStreetMap Nominatim API for reverse geocoding
+    const nominatimUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`;
 
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`,
-      {
-        headers: {
-          'User-Agent': 'BoardSource/1.0 (surfboard listing service)',
-        },
-      }
-    );
-
-    console.log('🌐 OpenStreetMap reverse response status:', response.status);
+    const response = await fetch(nominatimUrl, {
+      headers: {
+        'User-Agent': 'BrdSrc/1.0 (https://brdsrc.vercel.app)', // Required by OSM
+      },
+    });
 
     if (!response.ok) {
-      console.error('❌ OpenStreetMap reverse geocode error:', response.status);
-      throw new Error(`Reverse geocode error: ${response.status}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data: OpenStreetMapResult = await response.json();
-    console.log('📊 Reverse geocode data received:', data.display_name);
+    const data = await response.json();
 
-    if (!data.address) {
-      console.log('❌ No address found in response');
-      return NextResponse.json({ error: 'No address found' }, { status: 404 });
+    if (!data.display_name) {
+      return NextResponse.json(
+        { error: 'No address found for coordinates' },
+        { status: 404 }
+      );
     }
+
+    // Extract city and state from the address components
+    const address = data.address || {};
+    const city =
+      address.city ||
+      address.town ||
+      address.village ||
+      address.municipality ||
+      address.county ||
+      'Unknown City';
+
+    const state = address.state || 'Unknown State';
 
     const result = {
       address: data.display_name,
-      city:
-        data.address.city || data.address.town || data.address.village || '',
-      state:
-        data.address.state ||
-        data.address.region ||
-        data.address.administrative_area_level_1 ||
-        data.address['ISO3166-2-lvl4'] ||
-        '',
-      latitude: parseFloat(data.lat),
-      longitude: parseFloat(data.lon),
+      city,
+      state,
+      latitude: parseFloat(lat),
+      longitude: parseFloat(lon),
     };
-
-    console.log('✅ Reverse geocode result:', result);
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('💥 Reverse geocode API error:', error);
+    console.error('Reverse geocoding error:', error);
     return NextResponse.json(
-      { error: 'Failed to reverse geocode' },
+      { error: 'Failed to reverse geocode coordinates' },
       { status: 500 }
     );
   }
