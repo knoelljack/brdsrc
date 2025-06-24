@@ -163,6 +163,7 @@ export default function LocationInfo({
             Location{showRequiredAsterisk ? ' *' : ''}
           </label>
           <LocationAutocomplete
+            value={data.location || ''}
             onChange={handleLocationAutocomplete}
             placeholder="Start typing a city or address..."
             required
@@ -184,6 +185,7 @@ export default function LocationInfo({
 
           <div className="space-y-3">
             <LocationAutocomplete
+              value={data.location || ''}
               onChange={handleLocationAutocomplete}
               placeholder="Start typing a city or address..."
               required

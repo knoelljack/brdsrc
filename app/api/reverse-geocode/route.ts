@@ -1,5 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// State name to abbreviation mapping for OpenStreetMap responses
+const STATE_MAPPING: Record<string, string> = {
+  California: 'CA',
+  Florida: 'FL',
+  Hawaii: 'HI',
+  'North Carolina': 'NC',
+  Oregon: 'OR',
+  Texas: 'TX',
+  Washington: 'WA',
+  Virginia: 'VA',
+  Arizona: 'AZ',
+};
+
 // Simple reverse geocoding using OpenStreetMap Nominatim API
 export async function GET(request: NextRequest) {
   try {
@@ -46,7 +59,9 @@ export async function GET(request: NextRequest) {
       address.county ||
       'Unknown City';
 
-    const state = address.state || 'Unknown State';
+    const stateName = address.state || 'Unknown State';
+    // Convert full state name to abbreviation
+    const state = STATE_MAPPING[stateName] || stateName;
 
     // Build display location (similar to autocomplete logic)
     const neighborhood = address.neighbourhood || address.suburb;

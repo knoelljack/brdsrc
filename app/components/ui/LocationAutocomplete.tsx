@@ -17,6 +17,7 @@ interface LocationAutocompleteProps {
   placeholder?: string;
   className?: string;
   required?: boolean;
+  value?: string;
 }
 
 interface GoogleMapsAutocompleteOptions {
@@ -80,9 +81,17 @@ export default function LocationAutocomplete({
   placeholder = 'Enter city and state',
   className = '',
   required = false,
+  value,
 }: LocationAutocompleteProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<GoogleMapsAutocomplete | null>(null);
+
+  // Update input value when value prop changes
+  useEffect(() => {
+    if (inputRef.current && value !== undefined) {
+      inputRef.current.value = value;
+    }
+  }, [value]);
 
   const initializeAutocomplete = useCallback(() => {
     if (!inputRef.current) {
