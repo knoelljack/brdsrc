@@ -46,7 +46,7 @@ export async function generateMetadata({
   }
 
   const title = `${board.title} - ${board.brand} ${board.length} Surfboard`;
-  const description = `${board.condition} condition ${board.brand} ${board.length} surfboard for $${board.price}. Located in ${board.city}, ${board.state}. ${board.description.substring(0, 100)}...`;
+  const description = `${board.condition} condition ${board.brand} ${board.length} surfboard for $${board.price}. Located in ${board.location || `${board.city}, ${board.state}`}. ${board.description.substring(0, 100)}...`;
 
   const imageUrl =
     board.images && board.images.length > 0

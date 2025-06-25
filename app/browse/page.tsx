@@ -265,7 +265,9 @@ export default function Browse() {
                                   </p>
 
                                   <p className="text-sm text-gray-500 mb-3">
-                                    📍 {board.city}, {board.state}
+                                    📍{' '}
+                                    {board.location ||
+                                      `${board.city}, ${board.state}`}
                                   </p>
 
                                   <p className="text-gray-700 mb-4">
