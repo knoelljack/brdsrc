@@ -1,4 +1,6 @@
 import { Surfboard } from '@/app/data/surfboards';
+import { prisma } from '@/app/lib/prisma';
+import { ListingStatus, SurfboardCondition } from '@/types/surfboard';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import BoardDetailClient from './BoardDetailClient';
@@ -11,21 +13,47 @@ interface BoardDetailPageProps {
 
 async function fetchBoard(id: string): Promise<Surfboard | null> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/boards/${id}`, {
-      cache: 'no-store', // Always fetch fresh data for SEO
+    const surfboard = await prisma.surfboard.findUnique({
+      where: { id },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+      },
     });
 
-    if (response.status === 404) {
+    if (!surfboard) {
       return null;
     }
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch board details');
-    }
+    // Transform to match Surfboard interface
+    const transformedSurfboard: Surfboard = {
+      id: surfboard.id,
+      title: surfboard.title,
+      brand: surfboard.brand,
+      length: surfboard.length,
+      price: surfboard.price,
+      condition: surfboard.condition as SurfboardCondition,
+      location: surfboard.location,
+      city: surfboard.city,
+      state: surfboard.state,
+      description: surfboard.description,
+      images: surfboard.images,
+      userId: surfboard.userId,
+      status: surfboard.status as ListingStatus,
+      createdAt: surfboard.createdAt,
+      seller: {
+        name: surfboard.user.name,
+        email: surfboard.user.email,
+        phone: surfboard.user.phone,
+      },
+    };
 
-    const data = await response.json();
-    return data.surfboard;
+    return transformedSurfboard;
   } catch (error) {
     console.error('Error fetching board:', error);
     return null;
