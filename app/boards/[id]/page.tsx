@@ -13,7 +13,6 @@ interface BoardDetailPageProps {
 
 async function fetchBoard(id: string): Promise<Surfboard | null> {
   try {
-    // Directly access database instead of making HTTP request
     const surfboard = await prisma.surfboard.findUnique({
       where: { id },
       include: {
