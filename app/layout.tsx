@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     telephone: false,
   },
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_BASE_URL || 'https://boardsource.com'
+    process.env.NEXT_PUBLIC_BASE_URL || 'https://brdsrc.com'
   ),
   alternates: {
     canonical: '/',
@@ -111,13 +111,12 @@ export default function RootLayout({
               name: 'BoardSource',
               description:
                 'Buy and sell quality surfboards from surfers worldwide',
-              url:
-                process.env.NEXT_PUBLIC_BASE_URL || 'https://boardsource.com',
+              url: process.env.NEXT_PUBLIC_BASE_URL || 'https://brdsrc.com',
               potentialAction: {
                 '@type': 'SearchAction',
                 target: {
                   '@type': 'EntryPoint',
-                  urlTemplate: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://boardsource.com'}/?search={search_term_string}`,
+                  urlTemplate: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://brdsrc.com'}/?search={search_term_string}`,
                 },
                 'query-input': 'required name=search_term_string',
               },
