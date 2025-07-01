@@ -34,7 +34,8 @@ export async function POST(request: NextRequest) {
       images,
       latitude,
       longitude,
-      // contactName, contactEmail, contactPhone - we'll store these later if needed
+      contactName,
+      contactPhone,
     } = body;
 
     // Validation
@@ -80,6 +81,17 @@ export async function POST(request: NextRequest) {
 
     // Create location string
     const location = `${city}, ${state}`;
+
+    // Update user's contact info if provided
+    if (contactName || contactPhone) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          ...(contactName && { name: contactName.trim() }),
+          ...(contactPhone && { phone: contactPhone.trim() }),
+        },
+      });
+    }
 
     // Create the surfboard listing
     const surfboard = await prisma.surfboard.create({

@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Footer from '../components/layout/Footer';
 import Header from '../components/layout/Header';
 import {
@@ -37,12 +37,43 @@ export default function SellPage() {
     mode: 'create',
   });
 
-  // Contact info state
+  // Contact info state - will be populated with profile data
   const [contactInfo, setContactInfo] = useState({
     contactName: session?.user?.name || '',
     contactEmail: session?.user?.email || '',
     contactPhone: '',
   });
+
+  // Load user's profile data to pre-fill contact form
+  useEffect(() => {
+    const loadProfileData = async () => {
+      if (session?.user?.email) {
+        try {
+          const response = await fetch('/api/profile');
+          if (response.ok) {
+            const profileData = await response.json();
+            setContactInfo({
+              contactName: profileData.name || session.user.name || '',
+              contactEmail: profileData.email || session.user.email || '',
+              contactPhone: profileData.phone || '',
+            });
+          }
+        } catch (error) {
+          console.error('Failed to load profile data:', error);
+          // Fall back to session data
+          setContactInfo({
+            contactName: session.user.name || '',
+            contactEmail: session.user.email || '',
+            contactPhone: '',
+          });
+        }
+      }
+    };
+
+    if (session?.user && status === 'authenticated') {
+      loadProfileData();
+    }
+  }, [session, status]);
 
   const handleLocationSelect = (location: {
     address: string;
@@ -103,9 +134,10 @@ export default function SellPage() {
         imageUrls.push(uploadResult.url);
       }
 
-      // Create the listing with coordinates
+      // Create the listing with coordinates and contact info
       const listingData = {
         ...formData,
+        ...contactInfo, // Include contact information
         images: imageUrls,
         userId: session.user.id,
         latitude: coordinates?.latitude || null,
