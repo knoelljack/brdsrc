@@ -22,6 +22,7 @@ export default function BoardDetailClient({ board }: BoardDetailClientProps) {
     isLoading: favoritesLoading,
   } = useFavorites();
   const [favoriteActionLoading, setFavoriteActionLoading] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const isOwner = session?.user?.email === board?.seller?.email;
   const isBoardFavorited = isFavorited(board.id.toString());
@@ -91,18 +92,18 @@ export default function BoardDetailClient({ board }: BoardDetailClientProps) {
                 <div className="space-y-4">
                   {/* Main Image */}
                   <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden relative">
-                    {board.images[0].startsWith('data:') ? (
+                    {board.images[selectedImageIndex].startsWith('data:') ? (
                       // Use regular img tag for base64 data URLs (Next.js Image doesn't support data URLs)
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={board.images[0]}
+                        src={board.images[selectedImageIndex]}
                         alt={board.title}
                         className="w-full h-full object-cover"
                       />
                     ) : (
                       // Use Next.js Image for regular URLs
                       <Image
-                        src={board.images[0]}
+                        src={board.images[selectedImageIndex]}
                         alt={board.title}
                         fill
                         className="object-cover"
@@ -110,29 +111,34 @@ export default function BoardDetailClient({ board }: BoardDetailClientProps) {
                     )}
                   </div>
 
-                  {/* Thumbnail Grid (if more than 1 image) */}
-                  {board.images.length > 1 && (
-                    <div className="grid grid-cols-4 gap-2">
-                      {board.images.slice(1, 5).map((image, index) => (
+                  {/* Thumbnail Grid */}
+                  {board.images.length > 0 && (
+                    <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                      {board.images.map((image, index) => (
                         <div
                           key={index}
-                          className="aspect-square bg-gray-100 rounded-md overflow-hidden relative"
+                          onClick={() => setSelectedImageIndex(index)}
+                          className={`aspect-square bg-gray-100 rounded-md overflow-hidden relative cursor-pointer transition-all ${
+                            selectedImageIndex === index
+                              ? 'ring-2 ring-blue-500 ring-offset-1'
+                              : 'hover:opacity-75 hover:ring-1 hover:ring-gray-300 hover:ring-offset-1'
+                          }`}
                         >
                           {image.startsWith('data:') ? (
                             // Use regular img tag for base64 data URLs (Next.js Image doesn't support data URLs)
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
                               src={image}
-                              alt={`${board.title} - Image ${index + 2}`}
-                              className="w-full h-full object-cover cursor-pointer hover:opacity-75 transition-opacity"
+                              alt={`${board.title} - Image ${index + 1}`}
+                              className="w-full h-full object-cover"
                             />
                           ) : (
                             // Use Next.js Image for regular URLs
                             <Image
                               src={image}
-                              alt={`${board.title} - Image ${index + 2}`}
+                              alt={`${board.title} - Image ${index + 1}`}
                               fill
-                              className="object-cover cursor-pointer hover:opacity-75 transition-opacity"
+                              className="object-cover"
                             />
                           )}
                         </div>
