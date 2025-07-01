@@ -1,5 +1,6 @@
 'use client';
 
+import imageCompression from 'browser-image-compression';
 import Image from 'next/image';
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -21,6 +22,8 @@ export default function ImageUploadCloud({
 }: ImageUploadCloudProps) {
   const [images, setImages] = useState<File[]>(initialImages);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressionProgress, setCompressionProgress] = useState<string>('');
 
   // Generate previews when images change
   React.useEffect(() => {
@@ -47,42 +50,91 @@ export default function ImageUploadCloud({
     return () => readers.forEach(r => r.abort());
   }, [images]);
 
-  const processFiles = (acceptedFiles: File[]) => {
+  const compressImage = async (file: File): Promise<File> => {
+    // If file is already small enough, return as is
+    if (file.size <= 1024 * 1024) {
+      // 1MB
+      return file;
+    }
+
+    const options = {
+      maxSizeMB: 1, // Compress to max 1MB
+      maxWidthOrHeight: 1920, // Good quality for web display
+      useWebWorker: true,
+      quality: 0.8, // Good balance between quality and size
+    };
+
+    try {
+      const compressedFile = await imageCompression(file, options);
+
+      // Create a new File object with the original name
+      const newFile = new File([compressedFile], file.name, {
+        type: compressedFile.type,
+        lastModified: Date.now(),
+      });
+
+      return newFile;
+    } catch (error) {
+      console.error('Compression failed:', error);
+      // If compression fails, return original file
+      return file;
+    }
+  };
+
+  const processFiles = async (acceptedFiles: File[]) => {
     if (images.length + acceptedFiles.length > maxImages) {
       alert(`You can only upload up to ${maxImages} images`);
       return;
     }
 
-    // Filter out HEIC files and files that are too large
-    const validFiles = acceptedFiles.filter(file => {
-      // Check file size
-      if (file.size > maxSizeBytes) {
-        alert(
-          `${file.name} is too large. Maximum size is ${Math.round(maxSizeBytes / 1024 / 1024)}MB`
+    setIsCompressing(true);
+    const validFiles: File[] = [];
+
+    try {
+      for (let i = 0; i < acceptedFiles.length; i++) {
+        const file = acceptedFiles[i];
+        setCompressionProgress(
+          `Processing image ${i + 1} of ${acceptedFiles.length}...`
         );
-        return false;
+
+        // Check for HEIC files
+        const isHeicFile =
+          file.type === 'image/heic' ||
+          file.type === 'image/heif' ||
+          /\.(heic|heif)$/i.test(file.name);
+
+        if (isHeicFile) {
+          alert(
+            `${file.name} is a HEIC file. Please convert it to JPEG in your Photos app first:\n\n1. Open Photos app\n2. Select the photo\n3. Tap Share → Save to Files → Choose JPEG format\n4. Then upload the converted file here.`
+          );
+          continue;
+        }
+
+        // Compress the image
+        const processedFile = await compressImage(file);
+
+        // Check final file size after compression
+        if (processedFile.size > maxSizeBytes) {
+          alert(
+            `${file.name} is still too large after compression. Maximum size is ${Math.round(maxSizeBytes / 1024 / 1024)}MB`
+          );
+          continue;
+        }
+
+        validFiles.push(processedFile);
       }
 
-      // Check for HEIC files
-      const isHeicFile =
-        file.type === 'image/heic' ||
-        file.type === 'image/heif' ||
-        /\.(heic|heif)$/i.test(file.name);
-
-      if (isHeicFile) {
-        alert(
-          `${file.name} is a HEIC file. Please convert it to JPEG in your Photos app first:\n\n1. Open Photos app\n2. Select the photo\n3. Tap Share → Save to Files → Choose JPEG format\n4. Then upload the converted file here.`
-        );
-        return false;
+      if (validFiles.length > 0) {
+        const newImages = [...images, ...validFiles];
+        setImages(newImages);
+        onImagesChange(newImages);
       }
-
-      return true;
-    });
-
-    if (validFiles.length > 0) {
-      const newImages = [...images, ...validFiles];
-      setImages(newImages);
-      onImagesChange(newImages);
+    } catch (error) {
+      console.error('Error processing files:', error);
+      alert('There was an error processing your images. Please try again.');
+    } finally {
+      setIsCompressing(false);
+      setCompressionProgress('');
     }
   };
 
@@ -105,7 +157,7 @@ export default function ImageUploadCloud({
       'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp'],
     },
     maxFiles: maxImages,
-    disabled: images.length >= maxImages,
+    disabled: images.length >= maxImages || isCompressing,
   });
 
   return (
@@ -113,12 +165,27 @@ export default function ImageUploadCloud({
       <h3 className="text-lg font-semibold text-gray-900 mb-4">
         Upload Photos
       </h3>
+
+      {isCompressing && (
+        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-3"></div>
+            <span className="text-blue-800 text-sm font-medium">
+              {compressionProgress || 'Compressing images...'}
+            </span>
+          </div>
+          <p className="text-xs text-blue-600 mt-1">
+            Large images are being compressed to improve upload speed
+          </p>
+        </div>
+      )}
+
       <div
         {...getRootProps()}
         className={`
           border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
           ${isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}
-          ${images.length >= maxImages ? 'opacity-50 cursor-not-allowed' : ''}
+          ${images.length >= maxImages || isCompressing ? 'opacity-50 cursor-not-allowed' : ''}
         `}
       >
         <input {...getInputProps()} />
@@ -139,6 +206,8 @@ export default function ImageUploadCloud({
           </svg>
           {isDragActive ? (
             <p className="text-gray-600">Drop the images here...</p>
+          ) : isCompressing ? (
+            <p className="text-gray-600">Processing images...</p>
           ) : (
             <div>
               <p className="text-gray-600 mb-2">
@@ -150,7 +219,7 @@ export default function ImageUploadCloud({
                 {Math.round(maxSizeBytes / 1024 / 1024)}MB each
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                HEIC files not supported - please convert to JPEG first
+                Large images will be automatically compressed
               </p>
             </div>
           )}
@@ -175,6 +244,7 @@ export default function ImageUploadCloud({
                 <button
                   onClick={() => removeImage(index)}
                   className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                  disabled={isCompressing}
                 >
                   ×
                 </button>
@@ -190,6 +260,7 @@ export default function ImageUploadCloud({
           <li>• Show the board from multiple angles</li>
           <li>• Include close-ups of any damage or wear</li>
           <li>• Show fin setup and tail/nose details</li>
+          <li>• Large photos from phones will be automatically compressed</li>
         </ul>
       </div>
     </div>

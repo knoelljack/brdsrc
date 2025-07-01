@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import Footer from '../components/layout/Footer';
@@ -224,21 +225,46 @@ export default function Browse() {
                               className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
                             >
                               <div className="flex flex-col sm:flex-row gap-6">
-                                {/* Image placeholder */}
-                                <div className="sm:w-48 h-32 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                  <svg
-                                    className="w-12 h-12 text-gray-400"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={1}
-                                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                    />
-                                  </svg>
+                                {/* Board Image */}
+                                <div className="sm:w-48 h-32 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
+                                  {board.images && board.images.length > 0 ? (
+                                    board.images[0].startsWith('data:') ? (
+                                      // Use regular img tag for base64 data URLs (Next.js Image doesn't support data URLs)
+                                      // eslint-disable-next-line @next/next/no-img-element
+                                      <img
+                                        src={board.images[0]}
+                                        alt={board.title}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    ) : (
+                                      // Use Next.js Image for regular URLs
+                                      <Image
+                                        src={board.images[0]}
+                                        alt={board.title}
+                                        fill
+                                        className="object-cover"
+                                      />
+                                    )
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                      <div className="text-center text-gray-400">
+                                        <svg
+                                          className="mx-auto h-8 w-8 mb-1"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={1}
+                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                          />
+                                        </svg>
+                                        <p className="text-xs">No photos</p>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
 
                                 {/* Content */}
