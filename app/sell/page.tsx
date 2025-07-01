@@ -131,7 +131,7 @@ export default function SellPage() {
       resetForm();
       setSelectedFiles([]);
       setCoordinates(null);
-      router.push('/profile?tab=listings');
+      router.push('/my-listings');
     } catch (error) {
       alert(
         error instanceof Error
