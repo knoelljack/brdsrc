@@ -79,6 +79,13 @@ export default function SurfboardCard({ board }: SurfboardCardProps) {
           </button>
         )}
 
+        {/* New Tag */}
+        {isBoardNew(board.createdAt) && (
+          <span className="absolute top-3 right-3 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium shadow-lg z-10">
+            New
+          </span>
+        )}
+
         {board.images && board.images.length > 0 ? (
           board.images[0].startsWith('data:') ? (
             // Use regular img tag for base64 data URLs (Next.js Image doesn't support data URLs)
@@ -120,18 +127,9 @@ export default function SurfboardCard({ board }: SurfboardCardProps) {
       {/* Card Content */}
       <div className="p-6 flex flex-col flex-grow">
         <div className="flex justify-between items-start mb-2">
-          <div className="flex items-center gap-2">
-            <h4 className="text-lg font-semibold text-gray-900">
-              {board.title}
-            </h4>
-            {isBoardNew(board.createdAt) && (
-              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                New
-              </span>
-            )}
-          </div>
+          <h4 className="text-lg font-semibold text-gray-900">{board.title}</h4>
           <span className="text-lg font-bold text-gray-900">
-            ${board.price}
+            ${board.price.toLocaleString()}
           </span>
         </div>
 
