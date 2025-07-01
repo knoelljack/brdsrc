@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     siteName: 'BoardSource',
     images: [
       {
-        url: '/og-image.jpg',
+        url: '/og-image.png',
         width: 1200,
         height: 630,
         alt: 'BoardSource - Surfboard Marketplace',
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
     title: 'BoardSource - Buy & Sell Surfboards Online',
     description:
       'Find quality used surfboards from surfers worldwide. Buy and sell longboards, shortboards, and specialty boards with confidence.',
-    images: ['/og-image.jpg'],
+    images: ['/og-image.png'],
   },
   robots: {
     index: true,
