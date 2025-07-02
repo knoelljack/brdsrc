@@ -6,23 +6,10 @@ import SurfboardGrid from '@/app/components/ui/SurfboardGrid';
 import { useFavorites } from '@/app/hooks/useFavorites';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 
 export default function FavoritesPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+  const { status } = useSession();
   const { favorites, isLoading, error, refreshFavorites } = useFavorites();
-
-  // Redirect to sign in if not authenticated
-  useEffect(() => {
-    if (status === 'loading') return; // Still loading
-
-    if (!session) {
-      router.push('/auth/signin');
-      return;
-    }
-  }, [session, status, router]);
 
   // Show loading while checking authentication
   if (status === 'loading') {
@@ -38,11 +25,6 @@ export default function FavoritesPage() {
         <Footer />
       </div>
     );
-  }
-
-  // Don't render anything if not authenticated (will redirect)
-  if (!session) {
-    return null;
   }
 
   return (

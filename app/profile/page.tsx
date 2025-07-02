@@ -1,7 +1,6 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Footer from '../components/layout/Footer';
 import Header from '../components/layout/Header';
@@ -12,8 +11,7 @@ import { useAccountStats } from '../hooks/useAccountStats';
 import { useProfileData } from '../hooks/useProfileData';
 
 export default function ProfilePage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+  const { status } = useSession();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const {
@@ -39,12 +37,6 @@ export default function ProfilePage() {
         <Footer />
       </div>
     );
-  }
-
-  // Redirect if not authenticated
-  if (!session) {
-    router.push('/auth/signin');
-    return null;
   }
 
   return (
