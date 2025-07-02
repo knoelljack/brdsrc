@@ -8,7 +8,7 @@ interface BoardSitemapData {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://boardsource.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://brdsrc.com';
 
   // Static routes
   const staticRoutes: MetadataRoute.Sitemap = [

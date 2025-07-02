@@ -1,8 +1,6 @@
-import { MetadataRoute } from 'next';
+import type { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://boardsource.com';
-
   return {
     rules: [
       {
@@ -15,7 +13,7 @@ export default function robots(): MetadataRoute.Robots {
           '/my-listings/',
           '/favorites/',
           '/edit-listing/',
-          '/sell',
+          '/sell/',
           '/_next/',
           '/admin/',
         ],
@@ -30,11 +28,12 @@ export default function robots(): MetadataRoute.Robots {
           '/my-listings/',
           '/favorites/',
           '/edit-listing/',
+          '/sell/',
           '/_next/',
           '/admin/',
         ],
       },
     ],
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: 'https://brdsrc.com/sitemap.xml',
   };
 }

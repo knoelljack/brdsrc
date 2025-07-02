@@ -152,7 +152,7 @@ export default function MyListingsPage() {
     }
   }, [deleteConfirm.isOpen, isDeleting]);
 
-  // Redirect if not authenticated
+  // Loading state
   if (status === 'loading') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
@@ -163,11 +163,6 @@ export default function MyListingsPage() {
         <Footer />
       </div>
     );
-  }
-
-  if (!session) {
-    router.push('/auth/signin');
-    return null;
   }
 
   // Separate listings by status

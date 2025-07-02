@@ -1,16 +1,16 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import Header from '../../components/layout/Header';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import Footer from '../../components/layout/Footer';
+import Header from '../../components/layout/Header';
 import BasicBoardInfo from '../../components/listings/forms/BasicBoardInfo';
 import BoardConditionStatus from '../../components/listings/forms/BoardConditionStatus';
-import LocationInfo from '../../components/listings/forms/LocationInfo';
 import BoardDescription from '../../components/listings/forms/BoardDescription';
+import LocationInfo from '../../components/listings/forms/LocationInfo';
 
-import { SurfboardCondition, ListingStatus } from '@/types/surfboard';
+import { ListingStatus, SurfboardCondition } from '@/types/surfboard';
 
 interface ListingData {
   id: string;
@@ -85,11 +85,6 @@ export default function EditListingPage() {
         <Footer />
       </div>
     );
-  }
-
-  if (!session) {
-    router.push('/auth/signin');
-    return null;
   }
 
   const handleFieldChange = (name: string, value: string | number) => {
