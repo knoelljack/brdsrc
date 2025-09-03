@@ -24,6 +24,11 @@ export interface Surfboard {
     name: string | null;
     email: string | null;
     phone: string | null;
+    userType?: string | null;
+    shopName?: string | null;
+    shopAddress?: string | null;
+    shopWebsite?: string | null;
+    shopDescription?: string | null;
   };
 }
 
