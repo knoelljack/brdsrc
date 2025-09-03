@@ -39,6 +39,11 @@ export async function GET() {
             name: true,
             email: true,
             phone: true,
+            userType: true,
+            shopName: true,
+            shopAddress: true,
+            shopWebsite: true,
+            shopDescription: true,
           },
         },
       },
@@ -76,6 +81,11 @@ export async function GET() {
           name: board.user.name,
           email: board.user.email,
           phone: board.user.phone,
+          userType: board.user.userType,
+          shopName: board.user.shopName,
+          shopAddress: board.user.shopAddress,
+          shopWebsite: board.user.shopWebsite,
+          shopDescription: board.user.shopDescription,
         },
       })
     );

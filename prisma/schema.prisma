@@ -49,6 +49,12 @@ model User {
   resetTokenExpiry DateTime? // Password reset token expiry
   location         String? // User location
   phone            String? // User phone number
+  userType         String    @default("individual") // "individual" or "surf_shop"
+  // Shop-specific fields
+  shopName         String? // Full display name for shops (e.g., "Rider Shack Surf Shop")
+  shopAddress      String? // Shop address
+  shopWebsite      String? // Shop website URL
+  shopDescription  String? // Shop description
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 

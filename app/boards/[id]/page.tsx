@@ -21,6 +21,11 @@ async function fetchBoard(id: string): Promise<Surfboard | null> {
             name: true,
             email: true,
             phone: true,
+            userType: true,
+            shopName: true,
+            shopAddress: true,
+            shopWebsite: true,
+            shopDescription: true,
           },
         },
       },
@@ -50,6 +55,11 @@ async function fetchBoard(id: string): Promise<Surfboard | null> {
         name: surfboard.user.name,
         email: surfboard.user.email,
         phone: surfboard.user.phone,
+        userType: surfboard.user.userType,
+        shopName: surfboard.user.shopName,
+        shopAddress: surfboard.user.shopAddress,
+        shopWebsite: surfboard.user.shopWebsite,
+        shopDescription: surfboard.user.shopDescription,
       },
     };
 

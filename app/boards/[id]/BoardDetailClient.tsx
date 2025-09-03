@@ -262,10 +262,13 @@ export default function BoardDetailClient({ board }: BoardDetailClientProps) {
               {!isOwner && board.status === 'active' && (
                 <div className="bg-gray-50 rounded-lg p-6 mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Contact Seller
+                    {board.seller?.userType === 'surf_shop'
+                      ? 'Contact Shop'
+                      : 'Contact Seller'}
                   </h3>
                   <div className="space-y-3">
-                    {board.seller?.name && (
+                    {/* Display shop name or individual name */}
+                    {board.seller?.userType === 'surf_shop' ? (
                       <div className="flex items-center">
                         <svg
                           className="w-5 h-5 text-gray-400 mr-3"
@@ -277,15 +280,98 @@ export default function BoardDetailClient({ board }: BoardDetailClientProps) {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                           />
                         </svg>
-                        <span className="text-gray-900 font-medium">
-                          {board.seller.name.split(' ')[0]}{' '}
-                          {/* Show only first name */}
-                        </span>
+                        <div>
+                          <span className="text-gray-900 font-medium block">
+                            {board.seller.shopName}
+                          </span>
+                          <span className="text-sm text-gray-500">
+                            Surf Shop
+                          </span>
+                        </div>
                       </div>
+                    ) : (
+                      board.seller?.name && (
+                        <div className="flex items-center">
+                          <svg
+                            className="w-5 h-5 text-gray-400 mr-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            />
+                          </svg>
+                          <span className="text-gray-900 font-medium">
+                            {board.seller.name.split(' ')[0]}{' '}
+                            {/* Show only first name for individuals */}
+                          </span>
+                        </div>
+                      )
                     )}
+
+                    {/* Shop address */}
+                    {board.seller?.userType === 'surf_shop' &&
+                      board.seller?.shopAddress && (
+                        <div className="flex items-start">
+                          <svg
+                            className="w-5 h-5 text-gray-400 mr-3 mt-0.5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                          </svg>
+                          <span className="text-gray-600 text-sm">
+                            {board.seller.shopAddress}
+                          </span>
+                        </div>
+                      )}
+
+                    {/* Shop website */}
+                    {board.seller?.userType === 'surf_shop' &&
+                      board.seller?.shopWebsite && (
+                        <div className="flex items-center">
+                          <svg
+                            className="w-5 h-5 text-gray-400 mr-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9"
+                            />
+                          </svg>
+                          <a
+                            href={board.seller.shopWebsite}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 text-sm"
+                          >
+                            Visit Website
+                          </a>
+                        </div>
+                      )}
 
                     {board.seller?.email && (
                       <div className="flex items-center">

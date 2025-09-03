@@ -1,10 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/app/lib/prisma';
 import bcrypt from 'bcryptjs';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, password } = await request.json();
+    const {
+      name,
+      email,
+      password,
+      userType = 'individual',
+      shopName,
+      shopAddress,
+      shopWebsite,
+      shopDescription,
+    } = await request.json();
 
     // Validation
     if (!name || !email || !password) {
@@ -17,6 +26,14 @@ export async function POST(request: NextRequest) {
     if (password.length < 6) {
       return NextResponse.json(
         { error: 'Password must be at least 6 characters' },
+        { status: 400 }
+      );
+    }
+
+    // Additional validation for surf shops
+    if (userType === 'surf_shop' && !shopName) {
+      return NextResponse.json(
+        { error: 'Shop name is required for surf shop accounts' },
         { status: 400 }
       );
     }
@@ -42,6 +59,11 @@ export async function POST(request: NextRequest) {
         name,
         email,
         password: hashedPassword,
+        userType,
+        shopName: userType === 'surf_shop' ? shopName : null,
+        shopAddress: userType === 'surf_shop' ? shopAddress : null,
+        shopWebsite: userType === 'surf_shop' ? shopWebsite : null,
+        shopDescription: userType === 'surf_shop' ? shopDescription : null,
       },
     });
 
