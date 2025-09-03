@@ -24,6 +24,11 @@ type SurfboardWithUser = {
     name: string | null;
     email: string;
     phone: string | null;
+    userType: string;
+    shopName: string | null;
+    shopAddress: string | null;
+    shopWebsite: string | null;
+    shopDescription: string | null;
   };
 };
 
