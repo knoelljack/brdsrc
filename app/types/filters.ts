@@ -1,14 +1,8 @@
 // Shared filter types for consistent filtering across the app
 import type { SurfboardCondition } from '@/types/surfboard';
 
-// Filter-specific condition mapping (browse page uses different labels)
-export type FilterCondition =
-  | 'Brand New'
-  | 'Excellent'
-  | 'Very Good'
-  | 'Good'
-  | 'Fair'
-  | 'Poor';
+// Filter-specific condition mapping (matches actual surfboard conditions)
+export type FilterCondition = 'New' | 'Like New' | 'Good' | 'Fair' | 'Poor';
 
 export type LengthFilter = '' | "Under 7'" | "7' - 9'" | "Over 9'";
 
@@ -21,11 +15,10 @@ export type SortOption =
   | 'length-short'
   | 'distance';
 
-// Filter option arrays for dropdowns (browse page specific)
+// Filter option arrays for dropdowns (matches actual surfboard conditions)
 export const CONDITION_OPTIONS: FilterCondition[] = [
-  'Brand New',
-  'Excellent',
-  'Very Good',
+  'New',
+  'Like New',
   'Good',
   'Fair',
   'Poor',
@@ -58,14 +51,10 @@ export const getConditionStyles = (
   condition: FilterCondition | SurfboardCondition
 ): string => {
   switch (condition) {
-    case 'Brand New':
     case 'New':
       return 'bg-purple-100 text-purple-800';
-    case 'Excellent':
     case 'Like New':
       return 'bg-green-100 text-green-800';
-    case 'Very Good':
-      return 'bg-blue-100 text-blue-800';
     case 'Good':
       return 'bg-yellow-100 text-yellow-800';
     case 'Fair':
