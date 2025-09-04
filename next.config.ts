@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'www.ridershack.com',
         port: '',
-        pathname: '/media/catalog/product/**',
+        pathname: '/**', // Allow all paths from ridershack.com
       },
     ],
     formats: ['image/avif', 'image/webp'],

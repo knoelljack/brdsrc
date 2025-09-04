@@ -84,6 +84,15 @@ class SurfboardScraper {
       return await this.scrapeRiderShackListingPage();
     }
 
+    // Check if this is the main Rider Shack surfboards page
+    if (
+      this.config.url.includes('ridershack.com') &&
+      this.config.url.includes('surfboards.html')
+    ) {
+      console.log('🏄‍♂️ Detected Rider Shack main surfboards listing page');
+      return await this.scrapeRiderShackMainPage();
+    }
+
     const allBoards: ScrapedSurfboard[] = [];
     let currentUrl: string | null = this.config.url;
     let pageCount = 0;
@@ -175,6 +184,84 @@ class SurfboardScraper {
     return [];
   }
 
+  private async scrapeRiderShackMainPage(): Promise<ScrapedSurfboard[]> {
+    console.log('🔍 Scraping Rider Shack main surfboards page...');
+
+    try {
+      const response = await fetch(this.config.url, {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const html = await response.text();
+      const dom = new JSDOM(html);
+      const document = dom.window.document;
+
+      // Extract all product URLs from the main surfboards page
+      const productUrls = this.extractMainPageProductUrls(document);
+      console.log(`🔗 Found ${productUrls.length} product URLs to scrape`);
+
+      if (productUrls.length === 0) {
+        console.log('⚠️  No product URLs found on main surfboards page');
+        return [];
+      }
+
+      // Scrape each individual product page
+      const allBoards: ScrapedSurfboard[] = [];
+      let successCount = 0;
+      let errorCount = 0;
+
+      console.log(`🔍 Preparing to scrape ${productUrls.length} surfboards...`);
+
+      for (let i = 0; i < productUrls.length; i++) {
+        const productUrl = productUrls[i];
+        console.log(
+          `📄 Scraping board ${i + 1}/${productUrls.length}: ${productUrl}`
+        );
+
+        try {
+          // Create a temporary config for this product URL
+          const productConfig = { ...this.config, url: productUrl };
+          const tempScraper = new SurfboardScraper(productConfig, this.userId);
+
+          // Scrape the individual product
+          const boards = await tempScraper.scrapeSingleProduct();
+          if (boards.length > 0) {
+            allBoards.push(...boards);
+            successCount++;
+            console.log(`✅ Successfully scraped: ${boards[0].title}`);
+          } else {
+            console.log(`⚠️  No valid data extracted from: ${productUrl}`);
+            errorCount++;
+          }
+        } catch (error) {
+          console.error(`❌ Failed to scrape ${productUrl}:`, error);
+          errorCount++;
+        }
+
+        // Be respectful - wait between requests
+        await this.delay(2000); // 2 second delay between requests
+      }
+
+      console.log(`🎉 Main page scraping complete!`);
+      console.log(`✅ Successfully scraped: ${successCount} boards`);
+      if (errorCount > 0) {
+        console.log(`⚠️  Failed to scrape: ${errorCount} boards`);
+      }
+
+      return allBoards;
+    } catch (error) {
+      console.error(`❌ Error scraping main surfboards page:`, error);
+      return [];
+    }
+  }
+
   private async scrapeRiderShackListingPage(): Promise<ScrapedSurfboard[]> {
     console.log('🔍 Scraping Rider Shack used surfboards listing page...');
 
@@ -255,6 +342,62 @@ class SurfboardScraper {
       console.error(`❌ Error scraping listing page:`, error);
       return [];
     }
+  }
+
+  private extractMainPageProductUrls(document: Document): string[] {
+    const productUrls: string[] = [];
+
+    // Look for product links in the main Rider Shack surfboards page
+    // Based on the HTML structure from the analysis
+    const linkSelectors = [
+      '.product-item-link',
+      '.product a',
+      'a[href*="surfboard"]',
+      'a[href*=".html"]',
+      '.item.product a',
+    ];
+
+    for (const selector of linkSelectors) {
+      const links = document.querySelectorAll(selector);
+      for (const link of Array.from(links)) {
+        const href =
+          (link as HTMLAnchorElement).href || link.getAttribute('href');
+        if (href) {
+          let fullUrl = href;
+
+          // Handle relative URLs
+          if (!fullUrl.startsWith('http')) {
+            fullUrl = `https://www.ridershack.com${href.startsWith('/') ? '' : '/'}${href}`;
+          }
+
+          // Only add unique URLs that look like product pages
+          // Exclude category pages, cart, account, etc.
+          if (
+            fullUrl.includes('ridershack.com') &&
+            fullUrl.includes('.html') &&
+            !fullUrl.includes('surfboards.html') && // Exclude the main listing page
+            !fullUrl.includes('used-surfboards.html') && // Exclude used listing page
+            !fullUrl.includes('checkout') &&
+            !fullUrl.includes('customer') &&
+            !fullUrl.includes('catalogsearch') &&
+            !productUrls.includes(fullUrl)
+          ) {
+            productUrls.push(fullUrl);
+          }
+        }
+      }
+    }
+
+    // Remove duplicates and filter out non-product URLs
+    const uniqueUrls = [...new Set(productUrls)].filter(
+      url =>
+        // Must be a product page (contains product name patterns)
+        url.match(/[a-z]+-[0-9]+-[a-z]/) ||
+        url.match(/[a-z]+-surfboard/) ||
+        url.match(/surfboard-[0-9]/)
+    );
+
+    return uniqueUrls;
   }
 
   private extractProductUrls(document: Document): string[] {
@@ -339,34 +482,115 @@ class SurfboardScraper {
       }
     }
 
-    // Get description from product info - try to get a cleaner description
+    // Get description from product info - target the correct HTML structure
     let description = '';
-    const aboutSection = document
-      .querySelector('#description')
-      ?.textContent?.trim();
-    const productInfo = document
-      .querySelector('.product-info-main .description')
-      ?.textContent?.trim();
 
-    if (aboutSection && aboutSection.length > 50) {
-      description = aboutSection.slice(0, 300) + '...';
-    } else if (productInfo && productInfo.length > 50) {
-      description = productInfo.slice(0, 300) + '...';
-    } else {
-      // Fallback to a constructed description
-      description = `Used ${title.replace('Used ', '')} in good condition. Located in Los Angeles, CA.`;
+    // Target multiple possible description locations with more specific selectors
+    const descriptionSelectors = [
+      'article.product-description', // From your HTML screenshot
+      '.product-description',
+      '.product-description p',
+      '#description .value',
+      '#description',
+      '.product-info-main .description',
+      '.product-collateral .box-description .std',
+      '.tab-content .product-description',
+      '[role="tabpanel"] .product-description',
+      '.additional-attributes-wrapper .product-description',
+      // Additional selectors for boards with minimal descriptions
+      '.product-info-main p',
+      '.product-info-main .value',
+      '.additional-attributes .value',
+      '.product-attribute-specs-table td',
+      '.short-description .std',
+    ];
+
+    let rawDescription = '';
+    for (const selector of descriptionSelectors) {
+      const element = document.querySelector(selector);
+      if (element) {
+        rawDescription = element.textContent?.trim() || '';
+        if (rawDescription.length > 50) {
+          break;
+        }
+      }
     }
 
-    // Get images
+    // Clean up the description text by removing extra whitespace and spec noise
+    const cleanDescription = (text: string) => {
+      return text
+        .replace(/\s+/g, ' ') // Replace multiple whitespace with single space
+        .replace(/More Information.*?Construction/gi, '') // Remove spec table noise
+        .replace(/Brand.*?Fin System.*?Fin Setup.*?/gi, '') // Remove spec details
+        .replace(/Length.*?Width.*?Thickness.*?Volume.*?/gi, '') // Remove dimensions
+        .replace(/STOCK DIMENSIONS.*$/gi, '') // Remove stock dimensions section
+        .replace(/Add accessories.*$/gi, '') // Remove add accessories text
+        .replace(/^\s*"\s*/, '') // Remove leading quote
+        .replace(/\s*"\s*$/, '') // Remove trailing quote
+        .trim();
+    };
+
+    if (rawDescription && rawDescription.length > 50) {
+      const cleaned = cleanDescription(rawDescription);
+      if (cleaned.length > 50) {
+        description = cleaned.slice(0, 500);
+      }
+    }
+
+    // If we still don't have a description, use a simple fallback
+    if (!description || description.length < 50) {
+      const isUsed = title.toLowerCase().includes('used');
+      description = `${isUsed ? 'Used' : 'New'} ${title} available at Rider Shack in Los Angeles, CA.`;
+    }
+
+    // Get images - prioritize main surfboard image only
     const images: string[] = [];
-    const imgElements = document.querySelectorAll(
-      '.product-image-photo, .gallery-image img, .fotorama__img, img[src*="surfboard"]'
-    );
-    for (const img of Array.from(imgElements)) {
-      const src =
-        (img as HTMLImageElement).src || (img as any).getAttribute('data-src');
-      if (src && src.startsWith('http')) {
-        images.push(src);
+
+    // First try to get the main product image (usually the first/primary image)
+    const mainImageSelectors = [
+      '.product-image-main img',
+      '.product-image-photo',
+      '.gallery-image:first-child img',
+      '.fotorama__stage .fotorama__img:first-child',
+      'img[src*="surfboard"]:first-of-type',
+    ];
+
+    for (const selector of mainImageSelectors) {
+      const img = document.querySelector(selector);
+      if (img) {
+        const src =
+          (img as HTMLImageElement).src ||
+          (img as any).getAttribute('data-src');
+        if (
+          src &&
+          src.startsWith('http') &&
+          !src.includes('fin') &&
+          !src.includes('leash')
+        ) {
+          images.push(src);
+          break; // Only take the first main image
+        }
+      }
+    }
+
+    // If no main image found, fall back to any surfboard image (but filter out accessories)
+    if (images.length === 0) {
+      const fallbackImages = document.querySelectorAll('img[src*="surfboard"]');
+      for (const img of Array.from(fallbackImages)) {
+        const src =
+          (img as HTMLImageElement).src ||
+          (img as any).getAttribute('data-src');
+        if (
+          src &&
+          src.startsWith('http') &&
+          !src.includes('fin') &&
+          !src.includes('leash') &&
+          !src.includes('wax') &&
+          !src.includes('traction')
+        ) {
+          images.push(src);
+          break; // Only take one image
+        }
       }
     }
 
@@ -389,9 +613,22 @@ class SurfboardScraper {
       ? processing.lengthParser(dimensionsText)
       : this.defaultLengthParser(dimensionsText);
 
-    const condition = processing?.conditionParser
-      ? processing.conditionParser('4') // Default to 4-star for Rider Shack used boards
-      : 'Good';
+    // Determine condition based on whether the title contains "Used" or "USED"
+    let condition = 'Good'; // Default condition
+
+    if (processing?.conditionParser) {
+      // Check if this is a used board or new board
+      const isUsedBoard = title.toLowerCase().includes('used');
+      if (isUsedBoard) {
+        condition = processing.conditionParser('4'); // Default to 4-star for used boards
+      } else {
+        condition = 'New'; // Set to "New" for non-used boards
+      }
+    } else {
+      // Fallback logic without processing function
+      const isUsedBoard = title.toLowerCase().includes('used');
+      condition = isUsedBoard ? 'Good' : 'New';
+    }
 
     const location = processing?.locationParser
       ? processing.locationParser('')
@@ -576,13 +813,14 @@ class SurfboardScraper {
 
     for (const board of boards) {
       try {
-        // Check if this board already exists (same title, brand, and user)
+        // Check if this board already exists (comprehensive duplicate check)
         const existingBoard = await prisma.surfboard.findFirst({
           where: {
             title: board.title,
             brand: board.brand,
+            length: board.length,
             userId: this.userId,
-            // Also check price to differentiate boards with same title/brand
+            // Also check price to differentiate boards with same title/brand/length
             price: board.price,
           },
         });
