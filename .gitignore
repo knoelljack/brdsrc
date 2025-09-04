@@ -49,3 +49,6 @@ next-env.d.ts
 .env.backup
 .env*.local
 .env
+
+# Scraped data backups (temporary files, not source code)
+scripts/scraped-data/
