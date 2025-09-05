@@ -84,18 +84,7 @@ class WebsiteAnalyzer {
   }
 
   private findPriceElements(document: Document): void {
-    const priceSelectors = [
-      '.price',
-      '.cost',
-      '.amount',
-      '.value',
-      '[class*="price"]',
-      '[class*="cost"]',
-      'span:contains("$")',
-      'div:contains("$")',
-    ];
-
-    // Also look for elements containing currency symbols
+    // Look for elements containing currency symbols
     const allElements = document.querySelectorAll('*');
     const priceElements: ElementInfo[] = [];
 

@@ -1,5 +1,11 @@
 import { prisma } from '../app/lib/prisma';
 
+// Type for user objects used in logging
+type UserForLogging = {
+  email: string;
+  name: string | null;
+};
+
 // Configuration options
 const CLEANUP_OPTIONS = {
   // Delete users with 'test' in their email
@@ -36,7 +42,7 @@ async function cleanupTestUsers() {
       if (CLEANUP_OPTIONS.dryRun) {
         const testUsers = await prisma.user.findMany(testUsersQuery);
         console.log(`[DRY RUN] Would delete ${testUsers.length} test users:`);
-        testUsers.forEach((user: any) =>
+        testUsers.forEach((user: UserForLogging) =>
           console.log(`  - ${user.email} (${user.name || 'No name'})`)
         );
       } else {
@@ -64,7 +70,7 @@ async function cleanupTestUsers() {
         console.log(
           `[DRY RUN] Would delete ${recentUsers.length} users created in the last ${CLEANUP_OPTIONS.recentHours} hours:`
         );
-        recentUsers.forEach((user: any) =>
+        recentUsers.forEach((user: UserForLogging) =>
           console.log(`  - ${user.email} (${user.name || 'No name'})`)
         );
       } else {
@@ -89,7 +95,7 @@ async function cleanupTestUsers() {
         console.log(
           `[DRY RUN] Would delete ${oauthUsers.length} OAuth-only users:`
         );
-        oauthUsers.forEach((user: any) =>
+        oauthUsers.forEach((user: UserForLogging) =>
           console.log(`  - ${user.email} (${user.name || 'No name'})`)
         );
       } else {
