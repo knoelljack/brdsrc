@@ -148,7 +148,16 @@ export default function SurfboardCard({ board }: SurfboardCardProps) {
           </span>
         </div>
 
-        <p className="text-sm text-gray-600 mb-4 flex-grow">
+        <p
+          className="text-sm text-gray-600 mb-4 flex-grow overflow-hidden"
+          style={{
+            display: '-webkit-box',
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical',
+            lineHeight: '1.4em',
+            maxHeight: '4.2em', // 3 lines * 1.4em line-height
+          }}
+        >
           {board.description}
         </p>
 
