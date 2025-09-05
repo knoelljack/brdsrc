@@ -128,7 +128,7 @@ class SurfboardScraper {
         if (this.config.pagination?.nextButton) {
           const nextButton = document.querySelector(
             this.config.pagination.nextButton
-          ) as any;
+          ) as HTMLAnchorElement | null;
           currentUrl = nextButton?.href || null;
 
           if (currentUrl && !currentUrl.startsWith('http')) {
@@ -560,7 +560,7 @@ class SurfboardScraper {
       if (img) {
         const src =
           (img as HTMLImageElement).src ||
-          (img as any).getAttribute('data-src');
+          (img as HTMLElement).getAttribute('data-src');
         if (
           src &&
           src.startsWith('http') &&
@@ -579,7 +579,7 @@ class SurfboardScraper {
       for (const img of Array.from(fallbackImages)) {
         const src =
           (img as HTMLImageElement).src ||
-          (img as any).getAttribute('data-src');
+          (img as HTMLElement).getAttribute('data-src');
         if (
           src &&
           src.startsWith('http') &&
@@ -682,9 +682,9 @@ class SurfboardScraper {
         .map(
           img =>
             (img as HTMLImageElement).src ||
-            (img as any).getAttribute('data-src')
+            (img as HTMLElement).getAttribute('data-src')
         )
-        .filter(Boolean);
+        .filter(Boolean) as string[];
     };
 
     // Extract raw data
@@ -1005,7 +1005,7 @@ const EXAMPLE_CONFIGS: Record<string, ScrapingConfig> = {
           return 'Poor';
         return 'Good'; // Default for used boards
       },
-      locationParser: (locationText: string) => {
+      locationParser: () => {
         // Rider Shack is in Los Angeles, CA
         return {
           city: 'Los Angeles',
