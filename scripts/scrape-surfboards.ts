@@ -696,12 +696,12 @@ class SurfboardScraper {
     let condition = this.config.selectors.condition
       ? getText(this.config.selectors.condition)
       : 'Good';
-    let priceText = getText(this.config.selectors.price);
-    let description = getText(this.config.selectors.description);
-    let locationText = this.config.selectors.location
+    const priceText = getText(this.config.selectors.price);
+    const description = getText(this.config.selectors.description);
+    const locationText = this.config.selectors.location
       ? getText(this.config.selectors.location)
       : '';
-    let images = this.config.selectors.images
+    const images = this.config.selectors.images
       ? getImages(this.config.selectors.images)
       : [];
 
